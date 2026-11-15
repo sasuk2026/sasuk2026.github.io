@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>freeai · 免 key 免费模型 · OpenAI 兼容 API</title>
+<style>
+:root{
+  --bg:#0a0e17; --card:#151d2e; --card2:#1b2538; --line:#243149;
+  --txt:#e8edf7; --sub:#9aa8c2; --dim:#66758f;
+  --acc:#5b8cff; --acc2:#8b6cff; --ok:#3ddc97; --warn:#ffb454; --bad:#ff6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1100px 520px at 50% -8%,#1b2642 0%,var(--bg) 62%) fixed,var(--bg);
+  color:var(--txt);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  min-height:100vh;padding:0 0 60px;-webkit-text-size-adjust:100%}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+a{color:var(--acc);text-decoration:none}
+.mono,code{font-family:"SF Mono",Consolas,"Liberation Mono",Menlo,monospace}
+
+/* ---------- header ---------- */
+header{padding:30px 0 20px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;border-radius:14px;flex:none;
+  background:linear-gradient(135deg,#4f86ff,#8b6cff);display:flex;align-items:center;justify-content:center;
+  font-size:27px;font-weight:800;color:#fff;box-shadow:0 6px 22px rgba(91,140,255,.35)}
+.brand h1{font-size:27px;font-weight:800;letter-spacing:-.5px;line-height:1.15}
+.brand .sub{color:var(--sub);font-size:12.5px;margin-top:2px}
+.hpills{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.hpill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:11.5px;color:var(--sub)}
+.hpill b{color:var(--ok);font-weight:700}
+
+/* ---------- panel ---------- */
+.panel{background:linear-gradient(180deg,var(--card),#121a29);border:1px solid var(--line);
+  border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.panel h2{font-size:15.5px;display:flex;align-items:center;gap:9px;margin-bottom:3px}
+.panel h2 .n{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:11px;
+  width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.hint{color:var(--dim);font-size:12px;margin-bottom:14px;line-height:1.7}
+.rightlink{margin-left:auto;font-size:12px;color:var(--acc);font-weight:600;cursor:pointer}
+
+/* credential box */
+.cred{background:#0b1120;border:1px solid #2b3b5c;border-radius:11px;padding:14px;margin-top:6px}
+.credrow{margin-bottom:13px}
+.credrow:last-of-type{margin-bottom:6px}
+.credlabel{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--sub);margin-bottom:7px;letter-spacing:.3px}
+.credlabel .k{background:#1a2740;color:#9fc0ff;border-radius:5px;padding:1px 7px;font-size:10.5px;font-weight:700}
+.credval{display:flex;gap:8px;align-items:stretch}
+.credval input{flex:1;min-width:0;background:#060b15;border:1px solid #2a3550;color:#a8e5c9;
+  border-radius:8px;padding:11px 12px;font-size:13px;outline:none;font-family:monospace;letter-spacing:.2px}
+.credval input.key{color:#ffd9a8}
+.credval input:focus{border-color:var(--acc)}
+button{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;border-radius:9px;
+  padding:10px 15px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+button:hover{filter:brightness(1.12)}
+button:active{transform:translateY(1px)}
+button.ghost{background:var(--card2);border:1px solid var(--line);color:var(--txt)}
+button.mini{padding:5px 10px;font-size:11.5px;border-radius:7px}
+button.cp{flex:none;min-width:62px}
+.credfoot{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.crednote{color:var(--dim);font-size:11.5px;line-height:1.6;margin-top:9px}
+.crednote b{color:var(--warn)}
+
+/* lane check */
+.lane{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px dashed #22304a}
+.lane:last-child{border-bottom:0;padding-bottom:2px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:6px}
+.dot.g{background:var(--ok);box-shadow:0 0 9px var(--ok)}
+.dot.y{background:var(--warn);box-shadow:0 0 9px var(--warn)}
+.lane .lt{font-size:13px;font-weight:700}
+.lane .ld{color:var(--dim);font-size:11.5px;line-height:1.55}
+.lane .tag2{margin-left:auto;flex:none;font-size:10.5px;padding:2px 9px;border-radius:6px;
+  background:#123a2a;color:#7fe3b4}
+.lane .tag2.y{background:#3a2e1a;color:#ffc878}
+
+/* filters */
+.filters{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.filters input,.filters select{background:#0b1120;border:1px solid var(--line);color:var(--txt);
+  border-radius:9px;padding:10px 12px;font-size:13px;outline:none}
+.filters input{flex:1;min-width:180px}
+.filters input:focus,.filters select:focus{border-color:var(--acc)}
+.cnt{color:var(--dim);font-size:12px;margin-left:auto}
+.snap{color:var(--dim);font-size:11.5px;line-height:1.7;margin:2px 0 4px}
+
+/* model cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;position:relative;
+  transition:.15s;display:flex;flex-direction:column}
+.card:hover{border-color:#3a4d78;transform:translateY(-1px)}
+.card .ttl{font-size:14.5px;font-weight:700;line-height:1.35;padding-right:82px;margin-bottom:9px;word-break:break-word}
+.st{position:absolute;right:13px;top:14px;font-size:10.5px;padding:3px 9px;border-radius:6px;font-weight:700;white-space:nowrap}
+.st.ok{background:#123a2a;color:#7fe3b4;border:1px solid #1c5a40}
+.st.think{background:#3a2e1a;color:#ffc878;border:1px solid #5c4620}
+.idrow{display:flex;align-items:center;gap:6px;background:#0b1120;border:1px solid #222e46;
+  border-radius:8px;padding:7px 8px 7px 10px;margin-bottom:10px;cursor:pointer}
+.idrow:hover{border-color:var(--acc)}
+.idrow .id{font-family:monospace;color:#bcd2ff;font-size:11.5px;word-break:break-all;flex:1;line-height:1.45}
+.idrow .cpico{color:var(--acc);font-size:11px;flex:none;opacity:.9;border:0;background:transparent;padding:2px 4px;font-weight:700}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tag{font-size:10.5px;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.tag.tool{background:#15324a;color:#7fd4ff}
+.tag.reason{background:#2a2340;color:#c4a8ff}
+.tag.vision{background:#12333a;color:#7fe0e3}
+.tag.code{background:#2e2340;color:#e0a8ff}
+.tag.struct{background:#133a2c;color:#7fe3b4}
+.tag.chat{background:#2a2f40;color:#aab6d0}
+.tag.warn{background:#3a2418;color:#ffb08a;border:1px solid #5c3a24}
+.tag.type{background:#1a2740;color:#9fc0ff}
+.meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:11px;margin-top:auto;padding-top:4px}
+.meta b{color:var(--sub);font-weight:600}
+.meta .rate{color:var(--ok)}
+.note2{color:var(--sub);font-size:11.5px;margin-top:7px;line-height:1.5}
+.src{color:var(--dim);font-size:10.5px;margin-top:8px;border-top:1px dashed #22304a;padding-top:8px;word-break:break-all}
+.morewrap{text-align:center;margin-top:16px}
+
+/* tabs / code / test */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 11px}
+.tab{background:var(--card2);border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
+.tab.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+pre{background:#080d18;border:1px solid var(--line);border-radius:10px;padding:15px;overflow:auto;
+  font-size:12px;line-height:1.7;color:#cbd8f0;position:relative}
+pre .k{color:#ff9d7a}pre .s{color:#9ae6a0}pre .c{color:#5f7091}pre .f{color:#8fb4ff}
+.copypre{position:absolute;right:9px;top:9px}
+.testout{margin-top:12px;font-size:13px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ok);color:#06231a;font-weight:700;padding:10px 20px;border-radius:9px;
+  opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-height:1.9}
+@media(max-width:600px){
+  .cards{grid-template-columns:1fr}
+  .brand h1{font-size:23px}
+  .credval{flex-wrap:wrap}
+  .credval input{min-width:100%}
+  button.cp{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="logo">F</div>
+    <div>
+      <h1>freeai</h1>
+      <div class="sub">免密免费模型 · OpenAI 兼容 API · 逐个实测</div>
+    </div>
+  </div>
+  <div class="hpills">
+    <span class="hpill">可调用模型 <b id="pTotal">—</b></span>
+    <span class="hpill">实测可用 <b id="pOk">—</b></span>
+    <span class="hpill">公益车道 <b id="pSite">—</b></span>
+    <span class="hpill">认证 <b>无需 Key</b></span>
+    <span class="hpill">协议 <b>OpenAI /v1</b></span>
+    <span class="hpill">架构 <b>前端 GitHub Pages · 后端 Render freeAI</b></span>
+  </div>
+</header>
+
+<!-- 接入凭证面板 -->
+<div class="panel" id="credPanel">
+  <h2><span class="n">1</span> OpenAI 接入凭证 <span class="rightlink" onclick="copyAll()">⧉ 复制全部配置</span></h2>
+  <p class="hint">在 Cherry Studio / NextChat / LobeChat / Cursor / OpenAI SDK 里填下面两项即可。<b>本页是 GitHub Pages 静态前端，模型调用统一由 Render 上的 freeAI 后端转发</b>；上游公益站<b>全部免 key</b>，网关默认不校验。</p>
+  <div class="cred">
+    <div class="credrow">
+      <div class="credlabel"><span class="k">BASE URL</span> OpenAI 调用地址（填到「API 地址 / Base URL」）</div>
+      <div class="credval">
+        <input id="baseUrl" class="mono" value="" spellcheck="false" readonly>
+        <button class="cp" data-copy="baseUrl">复制</button>
+      </div>
+    </div>
+    <div class="credrow">
+      <div class="credlabel"><span class="k">API KEY</span> 密钥（填到「API Key / 令牌」）</div>
+      <div class="credval">
+        <input id="apiKey" class="mono key" value="sk-freeai" spellcheck="false" readonly>
+        <button class="cp" data-copy="apiKey">复制</button>
+      </div>
+    </div>
+    <div class="credfoot">
+      <button class="ghost mini" onclick="testApi()">▶ 在线试一句</button>
+      <button class="ghost mini" data-copy="baseUrl">复制地址</button>
+      <button class="ghost mini" data-copy="apiKey">复制密钥</button>
+    </div>
+    <div class="crednote">说明：上游公益端点本身<b>无需任何密钥</b>，因此 API Key 一栏填 <b>任意非空值</b>都能调用；此处给出 <span class="mono">sk-freeai</span> 作为统一占位值，方便客户端必填校验时直接粘贴。若部署时在 Render 设置了 <span class="mono">HUB_ACCESS_TOKEN</span>，则改为填该口令。</div>
+  </div>
+  <div id="testOut" class="testout" style="display:none"></div>
+
+  <div class="tabs" id="codeTabs"></div>
+  <pre id="codeBox"><span class="c">选择上方语言查看调用示例…</span></pre>
+</div>
+
+<!-- 车道体检 -->
+<div class="panel">
+  <h2><span class="n">2</span> 车道体检 · 只读 <span class="rightlink" onclick="recheck()">↻ 重新体检</span></h2>
+  <p class="hint">按来源站点汇总实测状态。体检只读，不消耗推理额度。默认车道按「实测可用优先」自动选路。</p>
+  <div id="lanes"></div>
+  <p class="snap" id="snap"></p>
+</div>
+
+<!-- 模型卡片 -->
+<div class="panel">
+  <h2><span class="n">3</span> 免费模型清单</h2>
+  <p class="hint">每条都真实发过一次对话请求验证。点模型 ID 任意位置即可<b>复制模型名</b>。带 <span class="mono">:free</span> 的为 Kilo 公共网关免费池模型，无需账号或 Key。</p>
+  <div class="filters">
+    <input id="q" placeholder="搜索免费模型（名称 / ID / 来源）" oninput="render(true)">
+    <select id="fSite" onchange="render(true)"><option value="">全部车道</option></select>
+    <select id="fType" onchange="render(true)"><option value="">全部类型</option></select>
+    <select id="fSort" onchange="render(true)">
+      <option value="rec">推荐（实测可用优先）</option>
+      <option value="lat">响应速度（快→慢）</option>
+      <option value="name">名称（A→Z）</option>
+    </select>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="morewrap"><button class="ghost" id="moreBtn" onclick="more()">加载更多</button></div>
+</div>
+
+<!-- 说明 -->
+<div class="panel">
+  <h2><span class="n">4</span> 来源与说明</h2>
+  <div class="crednote" style="font-size:12px">
+    <b>来源：</b>Kilo AI 公共网关免费池（isFree，无需账号或 Key）、Pollinations、OVHcloud AI Endpoints、LLM7.io、llmfreeapikey —— 均为面向开发者的公开公益端点，OpenAI 协议兼容。<br>
+    <b>提示：</b>prompt 会发往第三方上游，部分模型声明<b>可能用于训练</b>，请勿发送公司代码、合同或隐私数据。免费额度随时可能限流、轮换或下线；网关已做自动故障转移，某个上游失败会自动换下一个。<br>
+    <b>关于数量：</b>全网「匿名免 key + 长期稳定」的独立模型约 30 个，清单里其余为官方别名、标准模型名兼容映射与自动路由（方便只认 <span class="mono">gpt-4o</span> 之类名字的软件直接填）—— 每条都真能返回内容，没有编地址。
+  </div>
+</div>
+
+<footer>
+  freeai · 数据来自对公开公益端点的真实探测 · 上游由各公益站独立运营，使用前请遵守各站条款<br>
+  <span id="footBase"></span>
+</footer>
+</div>
+
+<div class="toast" id="toast">已复制</div>
+
+<script>
+const DATA = [{"id":"openai-fast","name":"Openai Fast","site":"pollinations","siteLabel":"Pollinations","type":"官方主ID","note":"GPT-OSS 20B 推理","ok":true,"caps":["工具"],"ctx":null,"latency":2.42,"upstream":"https://text.pollinations.ai/openai","sample":"PONG"},{"id":"openai","name":"Openai","site":"pollinations","siteLabel":"Pollinations","type":"官方别名","note":"GPT-OSS 20B 推理","ok":true,"caps":["工具"],"ctx":null,"latency":2.27,"upstream":"https://text.pollinations.ai/openai","sample":"PONG"},{"id":"gpt-oss","name":"GPT Oss","site":"pollinations","siteLabel":"Pollinations","type":"官方别名","note":"GPT-OSS 20B 推理","ok":true,"caps":["工具","结构化"],"ctx":null,"latency":2.33,"upstream":"https://text.pollinations.ai/openai","sample":"PONG"},{"id":"gpt-oss-20b","name":"GPT Oss 20B","site":"pollinations","siteLabel":"Pollinations","type":"官方别名","note":"GPT-OSS 20B 推理","ok":true,"caps":["工具","结构化"],"ctx":null,"latency":0.78,"upstream":"https://text.pollinations.ai/openai","sample":"PONG"},{"id":"ovh-reasoning","name":"Ovh Reasoning","site":"pollinations","siteLabel":"Pollinations","type":"官方别名","note":"GPT-OSS 20B 推理","ok":true,"caps":["推理","工具"],"ctx":null,"latency":2.02,"upstream":"https://text.pollinations.ai/openai","sample":"PONG"},{"id":"gpt-oss-120b","name":"GPT Oss 120B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"OpenAI GPT-OSS 120B · 131K","ok":true,"caps":["工具","结构化"],"ctx":"131K 上下文","latency":1.37,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"gpt-oss-20b","name":"GPT Oss 20B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"OpenAI GPT-OSS 20B · 131K","ok":true,"caps":["工具","结构化"],"ctx":"131K 上下文","latency":1.88,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Qwen3.5-397B-A17B","name":"Qwen3.5 397B A17B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Qwen3.5 397B MoE · 262K","ok":true,"caps":["工具"],"ctx":"262K 上下文","latency":7.62,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Qwen3.6-27B","name":"Qwen3.6 27B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Qwen3.6 27B · 262K","ok":true,"caps":["工具"],"ctx":"262K 上下文","latency":1.34,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Qwen3.8-27B","name":"Qwen3.8 27B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Qwen3.8 27B · 262K","ok":true,"caps":["工具"],"ctx":"262K 上下文","latency":13.5,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Qwen3.5-9B","name":"Qwen3.5 9B","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Qwen3.5 9B · 262K","ok":true,"caps":["工具"],"ctx":"262K 上下文","latency":5.57,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Mistral-Small-3.2-24B-Instruct-2506","name":"Mistral Small 3.2 24B Instruct 2506","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Mistral Small 3.2 24B · 131K","ok":true,"caps":["工具"],"ctx":"131K 上下文","latency":0.83,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"Qwen2.5-VL-72B-Instruct","name":"Qwen2.5 VL 72B Instruct","site":"ovhcloud","siteLabel":"OVHcloud AI Endpoints","type":"独立模型","note":"Qwen2.5 VL 72B 视觉 · 32K","ok":true,"caps":["视觉","工具"],"ctx":"32K 上下文","latency":1.4,"upstream":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1","sample":"PONG"},{"id":"DeepSeek-V4-Flash-0731","name":"DeepSeek V4 Flash 0731","site":"llm7","siteLabel":"LLM7.io","type":"独立模型","note":"DeepSeek V4 Flash · 400K","ok":true,"caps":["对话"],"ctx":"400K 上下文","latency":46.0,"upstream":"https://api.llm7.io/v1","sample":"PONG.PONG.PONG.PONG. responsePONG.PONG.PONG. responsePONG. r"},{"id":"codestral-latest","name":"Codestral Latest","site":"llm7","siteLabel":"LLM7.io","type":"独立模型","note":"Mistral Codestral 代码","ok":true,"caps":["代码"],"ctx":null,"latency":1.31,"upstream":"https://api.llm7.io/v1","sample":"PONG"},{"id":"glm-5.3-flash","name":"GLM 5.3 Flash","site":"llm7","siteLabel":"LLM7.io","type":"独立模型","note":"智谱 GLM-5.3 Flash","ok":true,"caps":["对话"],"ctx":null,"latency":3.87,"upstream":"https://api.llm7.io/v1","sample":"PONG"},{"id":"mistral-Nemo-Instruct-2407","name":"Mistral Nemo Instruct 2407","site":"llm7","siteLabel":"LLM7.io","type":"独立模型","note":"Mistral Nemo 12B","ok":true,"caps":["对话"],"ctx":null,"latency":2.9,"upstream":"https://api.llm7.io/v1","sample":"PONG"},{"id":"minimax-m2.7","name":"MiniMax M2.7","site":"llm7","siteLabel":"LLM7.io","type":"独立模型","note":"MiniMax M2.7","ok":true,"caps":["对话"],"ctx":null,"latency":4.72,"upstream":"https://api.llm7.io/v1","sample":"PONG<minimax:tool_call> <minimax:tool_call> <error> The user"},{"id":"kilo-auto/free","name":"Kilo-auto: free","site":"kilo","siteLabel":"Kilo 公共网关","type":"自动路由","note":"Kilo 自动选免费模型","ok":true,"caps":["工具"],"ctx":null,"latency":1.57,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"openrouter/free","name":"Openrouter: free","site":"kilo","siteLabel":"Kilo 公共网关","type":"自动路由","note":"OpenRouter 免费池路由","ok":true,"caps":["工具"],"ctx":null,"latency":1.23,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"nvidia/nemotron-3-ultra-550b-a55b:free","name":"NVIDIA: Nemotron 3 Ultra 550B A55b (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Nemotron 3 Ultra 550B","ok":true,"caps":["推理","工具"],"ctx":null,"latency":1.78,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"nvidia/nemotron-3.5-super-vl:free","name":"NVIDIA: Nemotron 3.5 Super VL (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Nemotron 3.5 Super VL","ok":true,"caps":["推理","视觉","工具"],"ctx":null,"latency":1.5,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"nvidia/nemotron-3.5-lightning:free","name":"NVIDIA: Nemotron 3.5 Lightning (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Nemotron 3.5 Lightning","ok":true,"caps":["推理","工具"],"ctx":null,"latency":1.85,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free","name":"NVIDIA: Nemotron 3 Nano Omni 30B A3b Reasoning (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Nemotron 3 Nano Omni 30B","ok":true,"caps":["推理","视觉","工具"],"ctx":null,"latency":1.38,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"baidu/ernie-5.5-flash-preview:free","name":"Baidu: ERNIE 5.5 Flash Preview (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"百度 ERNIE 5.5 Flash","ok":true,"caps":["工具","结构化"],"ctx":null,"latency":1.77,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"liquid/lfm-3-1.7b:free","name":"Liquid AI: Lfm 3 1.7B (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Liquid LFM 3 1.7B","ok":true,"caps":["工具"],"ctx":null,"latency":1.55,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"particle-ai/particle-1:free","name":"Particle: Particle 1 (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Particle-1","ok":true,"caps":["工具"],"ctx":null,"latency":1.7,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"dots-studio/dots-3-note-preview:free","name":"dots: Dots 3 Note Preview (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"dots-3-note","ok":true,"caps":["工具"],"ctx":null,"latency":2.19,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"cohere/north-mini-code:free","name":"Cohere: North Mini Code (free)","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Cohere North Mini Code","ok":true,"caps":["代码","工具"],"ctx":null,"latency":1.11,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"stealth/glyph-cluster","name":"Stealth: Glyph Cluster","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Stealth Glyph Cluster","ok":true,"caps":["工具"],"ctx":null,"latency":1.92,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"reflection/beam-free","name":"Reflection: Beam free","site":"kilo","siteLabel":"Kilo 公共网关","type":"独立模型","note":"Reflection Beam Free","ok":true,"caps":["工具"],"ctx":null,"latency":1.0,"upstream":"https://api.kilo.ai/api/gateway","sample":"PONG"},{"id":"free-ai","name":"free AI","site":"llmfree","siteLabel":"llmfreeapikey","type":"独立模型","note":"llmfreeapikey 公益通用模型 · 32K","ok":true,"caps":["对话"],"ctx":"32K 上下文","latency":1.48,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4o","name":"gpt-4o","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.66,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4o-mini","name":"gpt-4o-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.23,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4-turbo","name":"gpt-4-turbo","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.42,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4.1","name":"gpt-4.1","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.18,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4.1-mini","name":"gpt-4.1-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.41,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-4.1-nano","name":"gpt-4.1-nano","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.41,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-5","name":"gpt-5","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.29,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-5-mini","name":"gpt-5-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.39,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gpt-5-nano","name":"gpt-5-nano","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.33,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"o1","name":"o1","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"o1-mini","name":"o1-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.23,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"o3","name":"o3","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"o3-mini","name":"o3-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"o4-mini","name":"o4-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.29,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"chatgpt-4o-latest","name":"chatgpt-4o-latest","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.19,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-3-5-sonnet","name":"claude-3-5-sonnet","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.36,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-3-5-haiku","name":"claude-3-5-haiku","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.2,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-3-7-sonnet","name":"claude-3-7-sonnet","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.35,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-opus-4","name":"claude-opus-4","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.24,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-sonnet-4","name":"claude-sonnet-4","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.31,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-haiku-4","name":"claude-haiku-4","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"claude-3-opus","name":"claude-3-opus","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.43,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemini-2.0-flash","name":"gemini-2.0-flash","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.34,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemini-2.5-flash","name":"gemini-2.5-flash","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.12,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemini-2.5-pro","name":"gemini-2.5-pro","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemini-3-pro","name":"gemini-3-pro","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.31,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemini-3-flash","name":"gemini-3-flash","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"gemma-3-27b-it","name":"gemma-3-27b-it","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.24,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"deepseek-chat","name":"deepseek-chat","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.27,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"deepseek-reasoner","name":"deepseek-reasoner","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"deepseek-v3","name":"deepseek-v3","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.36,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"deepseek-r1","name":"deepseek-r1","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.2,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"deepseek-v3.2","name":"deepseek-v3.2","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.31,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwen-plus","name":"qwen-plus","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.16,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwen-max","name":"qwen-max","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.28,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwen-turbo","name":"qwen-turbo","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.33,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwen3-235b-a22b","name":"qwen3-235b-a22b","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.35,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwen2.5-72b-instruct","name":"qwen2.5-72b-instruct","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.34,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"qwq-plus","name":"qwq-plus","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.19,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"llama-3.3-70b-instruct","name":"llama-3.3-70b-instruct","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.27,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"llama-4-maverick","name":"llama-4-maverick","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.28,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"llama-4-scout","name":"llama-4-scout","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.23,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"llama-3.1-405b-instruct","name":"llama-3.1-405b-instruct","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.28,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"mistral-large-latest","name":"mistral-large-latest","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.28,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"mistral-small-latest","name":"mistral-small-latest","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.13,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"mixtral-8x7b-instruct","name":"mixtral-8x7b-instruct","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.35,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"magistral-medium","name":"magistral-medium","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.23,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"glm-4-plus","name":"glm-4-plus","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.31,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"glm-4.6","name":"glm-4.6","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"glm-4.5-air","name":"glm-4.5-air","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.28,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"kimi-k2","name":"kimi-k2","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.38,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"moonshot-v1-8k","name":"moonshot-v1-8k","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.33,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"grok-3","name":"grok-3","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.03,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"grok-3-mini","name":"grok-3-mini","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.27,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"grok-4","name":"grok-4","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"command-r-plus","name":"command-r-plus","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.12,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"phi-4","name":"phi-4","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.33,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"ernie-4.5-turbo","name":"ernie-4.5-turbo","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["结构化"],"ctx":null,"latency":1.17,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"doubao-pro-32k","name":"doubao-pro-32k","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.17,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"hunyuan-turbo","name":"hunyuan-turbo","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"minimax-m1","name":"minimax-m1","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.34,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"step-3","name":"step-3","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.3,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"nemotron-70b","name":"nemotron-70b","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["推理"],"ctx":null,"latency":1.2,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"reka-flash","name":"reka-flash","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.32,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"wizardlm-2","name":"wizardlm-2","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.33,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"auto","name":"auto","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.31,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"free","name":"free","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.07,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"},{"id":"router","name":"router","site":"llmfree","siteLabel":"llmfreeapikey","type":"兼容别名","note":"标准模型名映射 → 公益通用底座","ok":true,"caps":["对话"],"ctx":null,"latency":1.27,"upstream":"https://api.llmfreeapikey.com/v1","sample":"PONG"}];
+
+// ---------- 接入地址 / 密钥 ----------
+// 架构：本页是 GitHub Pages 上的静态前端；模型调用统一由 Render 的 freeAI 后端转发。
+// 因此 github.io / 本地双击打开时一律固定指向 Render 后端；
+// localhost 预览、或 Render 后端自带页面则走同源。
+const BACKEND_ORIGIN = 'https://freeai-f9v0.onrender.com';
+const DEFAULT_BASE = BACKEND_ORIGIN + '/v1';
+(function(){
+  const isFile = location.protocol === 'file:';
+  const h = location.hostname;
+  const sameOriginOK = !isFile && (h === 'localhost' || h === '127.0.0.1' || h.endsWith('.onrender.com'));
+  const origin = sameOriginOK ? location.origin : BACKEND_ORIGIN;
+  const base = origin.replace(/\/+$/,'') + '/v1';
+  document.getElementById('baseUrl').value = base;
+  document.getElementById('footBase').textContent =
+    '后端网关（Render · freeAI）：' + origin + '　|　本页为 GitHub Pages 静态前端，模型调用全部由 freeAI 后端转发';
+})();
+function baseVal(){ return document.getElementById('baseUrl').value.replace(/\/+$/,''); }
+function keyVal(){ return document.getElementById('apiKey').value; }
+
+// ---------- 复制 ----------
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);}
+function cpText(t,msg){
+  const done=()=>toast(msg||('已复制 '+t));
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done).catch(()=>fallback());
+  }else fallback();
+  function fallback(){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){toast('复制失败，请长按选择');}document.body.removeChild(ta);}
+}
+function cpId(id){ cpText(id, '模型名已复制：'+id); }
+function copyAll(){
+  const cfg='OpenAI Base URL : '+baseVal()+'\nAPI Key         : '+keyVal()+'\n协议            : OpenAI /v1\n模型 (model)    : gpt-4o （或从清单挑任意 ID）';
+  cpText(cfg,'接入配置已复制');
+}
+// 事件委托：所有带 data-copy 的按钮 + 可点的 ID 行
+document.addEventListener('click',function(e){
+  const b=e.target.closest('[data-copy]');
+  if(b){const el=document.getElementById(b.getAttribute('data-copy'));if(el)cpText(el.value,b.getAttribute('data-copy')==='baseUrl'?'调用地址已复制':'密钥已复制');return;}
+  const idr=e.target.closest('[data-id]');
+  if(idr){cpId(idr.getAttribute('data-id'));return;}
+});
+
+// ---------- 车道体检 ----------
+const LANE_DESC={
+  'kilo':'17 个免费模型清单可达，推理已实测可用 · 默认车道',
+  'ovhcloud':'匿名免 key，模型清单可达，推理已实测可用',
+  'pollinations':'匿名层模型池轮换，单并发 · 触发过配额限速',
+  'llm7':'pro 档需自备 key 已剔除，仅保留匿名可用档',
+  'llmfree':'纯免 key、无账号、CORS 全开，仅有 1 个真实底座（其余为标准名映射）',
+};
+function initLanes(){
+  const sites=[...new Set(DATA.map(x=>x.site))];
+  const order=['kilo','ovhcloud','pollinations','llm7','llmfree'];
+  sites.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  const html=sites.map(s=>{
+    const arr=DATA.filter(x=>x.site===s);
+    const ok=arr.filter(x=>x.ok).length;
+    const label=arr[0].siteLabel;
+    const warn=(s==='pollinations'||s==='llm7');
+    return '<div class="lane"><span class="dot '+(warn?'y':'g')+'"></span><div style="flex:1;min-width:0">'+
+      '<div class="lt">'+esc(label)+' · '+(warn?'推理受限':'可用')+'</div>'+
+      '<div class="ld">'+esc(LANE_DESC[s]||'OpenAI 兼容公益端点')+'</div></div>'+
+      '<span class="tag2 '+(warn?'y':'')+'">'+ok+'/'+arr.length+' 可用</span></div>';
+  }).join('');
+  document.getElementById('lanes').innerHTML=html;
+  document.getElementById('snap').innerHTML='实测快照：共 <b>'+DATA.length+'</b> 个可调用 ID，'+
+    '<b>'+DATA.filter(x=>x.ok).length+'</b> 个实测可用。首字/延迟为一次性采样，波动大，仅供参考；推理模型给足 token 预算后均可正常出字。';
+  const pT=document.getElementById('pTotal'),pO=document.getElementById('pOk'),pS=document.getElementById('pSite');
+  pT.textContent=DATA.length;pO.textContent=DATA.filter(x=>x.ok).length;pS.textContent=sites.length;
+}
+function recheck(){
+  fetch(baseVal().replace(/\/v1$/,'')+'/health').then(r=>r.json()).then(j=>{
+    toast('体检完成：'+j.models+' 模型 / 近期 '+j.healthy_recent+' 健康');
+  }).catch(()=>toast('网关暂未连通，仅展示静态实测数据'));
+  initLanes();
+}
+
+// ---------- 代码示例 ----------
+const CODES={
+  'Python (OpenAI SDK)':
+`<span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = <span class="f">OpenAI</span>(
+    base_url=<span class="s">"${baseVal()}"</span>,
+    api_key=<span class="s">"${keyVal()}"</span>,   <span class="c"># 上游免 key</span>
+)
+r = client.chat.completions.<span class="f">create</span>(
+    model=<span class="s">"gpt-4o"</span>,
+    messages=[{<span class="s">"role"</span>:<span class="s">"user"</span>,<span class="s">"content"</span>:<span class="s">"你好"</span>}],
+)
+<span class="f">print</span>(r.choices[0].message.content)`,
+  'cURL':
+`curl ${baseVal()}/chat/completions \\
+  -H <span class="s">"Content-Type: application/json"</span> \\
+  -H <span class="s">"Authorization: Bearer ${keyVal()}"</span> \\
+  -d <span class="s">'{
+    "model": "gpt-4o",
+    "messages": [{"role":"user","content":"你好"}]
+  }'</span>`,
+  'Node.js':
+`<span class="k">import</span> OpenAI <span class="k">from</span> <span class="s">"openai"</span>;
+<span class="k">const</span> client = <span class="k">new</span> <span class="f">OpenAI</span>({
+  baseURL: <span class="s">"${baseVal()}"</span>,
+  apiKey: <span class="s">"${keyVal()}"</span>,
+});
+<span class="k">const</span> r = <span class="k">await</span> client.chat.completions.<span class="f">create</span>({
+  model: <span class="s">"gpt-4o"</span>,
+  messages: [{ role: <span class="s">"user"</span>, content: <span class="s">"你好"</span> }],
+});
+console.<span class="f">log</span>(r.choices[0].message.content);`,
+  '客户端软件配置':
+`<span class="c"># Cherry Studio / NextChat / LobeChat / ChatBox / Cursor …</span>
+API 地址 (Base URL) : <span class="s">${baseVal()}</span>
+API Key (密钥)      : <span class="s">${keyVal()}</span>
+模型 (model)        : <span class="s">gpt-4o</span>   <span class="c"># 或从清单复制任意模型 ID</span>
+协议                : <span class="s">OpenAI</span>
+<span class="c"># 支持 stream / 多轮 messages / 自动故障转移</span>`,
+};
+function initCode(){
+  const tabs=document.getElementById('codeTabs');
+  Object.keys(CODES).forEach((k,i)=>{
+    const b=document.createElement('button');b.className='tab'+(i===0?' on':'');b.textContent=k;
+    b.onclick=()=>{[...tabs.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');showCode(k);};
+    tabs.appendChild(b);
+  });
+  showCode(Object.keys(CODES)[0]);
+}
+function showCode(k){
+  const box=document.getElementById('codeBox');
+  box.innerHTML=CODES[k]+'<button class="copypre mini ghost" onclick="copyCode()">复制</button>';
+  box.dataset.raw=box.textContent.replace('复制','').trim();
+}
+function copyCode(){cpText(document.getElementById('codeBox').dataset.raw,'调用示例已复制');}
+
+// ---------- 卡片渲染 ----------
+const CAPCLS={'工具':'tool','推理':'reason','视觉':'vision','代码':'code','结构化':'struct','对话':'chat'};
+const TYPECLS={'独立模型':'type','官方别名':'type','兼容别名':'type','自动路由':'type','官方主ID':'type'};
+let PAGE=12;
+function filtered(){
+  const q=document.getElementById('q').value.toLowerCase();
+  const s=document.getElementById('fSite').value,t=document.getElementById('fType').value,
+        sort=document.getElementById('fSort').value;
+  let rows=DATA.filter(x=>
+    (!q||(x.id+' '+x.name+' '+x.siteLabel+' '+x.note).toLowerCase().includes(q))&&
+    (!s||x.site===s)&&(!t||x.type===t));
+  if(sort==='lat') rows.sort((a,b)=>(a.latency==null?9e9:a.latency)-(b.latency==null?9e9:b.latency));
+  else if(sort==='name') rows.sort((a,b)=>a.id.localeCompare(b.id));
+  else rows.sort((a,b)=>{
+    if(a.ok!==b.ok) return a.ok?-1:1;
+    const rank=x=>x.type==='独立模型'?0:(x.id.endsWith(':free')?1:2);
+    if(rank(a)!==rank(b)) return rank(a)-rank(b);
+    return (a.latency==null?9e9:a.latency)-(b.latency==null?9e9:b.latency);
+  });
+  return rows;
+}
+function cardHTML(x){
+  const think=x.caps.indexOf('推理')>=0;
+  const st=x.ok?'<span class="st ok">实测可用</span>':(think?'<span class="st think">推理受限</span>':'<span class="st think">限流</span>');
+  const caps=x.caps.map(c=>'<span class="tag '+(CAPCLS[c]||'chat')+'">'+esc(c)+'</span>').join('');
+  const tcls=TYPECLS[x.type]||'chat';
+  const tags=caps+'<span class="tag '+tcls+'">'+esc(x.type)+'</span>'+
+    (x.id.endsWith(':free')?'<span class="tag warn">⚠ 可能用于训练</span>':'');
+  const ctx=x.ctx?'<span><b>'+esc(x.ctx)+'</b></span>':'';
+  const lat=x.latency!=null?'<span>实测响应 <b class="rate">'+x.latency+'s</b></span>':'';
+  return '<div class="card">'+st+
+    '<div class="ttl">'+esc(x.name)+'</div>'+
+    '<div class="idrow" data-id="'+esc(x.id)+'" title="点击复制模型 ID">'+
+      '<span class="id">'+esc(x.id)+'</span><button class="cpico">⧉ 复制</button></div>'+
+    '<div class="tags">'+tags+'</div>'+
+    '<div class="meta">'+ctx+lat+'<span>'+esc(x.siteLabel)+'</span></div>'+
+    (x.note?'<div class="note2">'+esc(x.note)+'</div>':'')+
+    '<div class="src">上游：'+esc(x.upstream||'')+'</div>'+
+  '</div>';
+}
+function render(reset){
+  if(reset)PAGE=12;
+  const rows=filtered();
+  const show=rows.slice(0,PAGE);
+  document.getElementById('cards').innerHTML=show.map(cardHTML).join('');
+  document.getElementById('cnt').textContent='显示 '+show.length+' / '+rows.length+' 条';
+  const mb=document.getElementById('moreBtn');
+  mb.style.display=rows.length>PAGE?'inline-block':'none';
+  mb.textContent='加载更多（还有 '+(rows.length-show.length)+' 条）';
+}
+function more(){PAGE+=12;render(false);}
+function initFilters(){
+  const fs=document.getElementById('fSite'),ft=document.getElementById('fType');
+  const sites=[...new Set(DATA.map(x=>x.site))];
+  const lbl={};DATA.forEach(x=>lbl[x.site]=x.siteLabel);
+  sites.forEach(s=>fs.add(new Option(lbl[s],s)));
+  [...new Set(DATA.map(x=>x.type))].forEach(t=>ft.add(new Option(t,t)));
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ---------- 在线测试 ----------
+async function testApi(){
+  const out=document.getElementById('testOut');out.style.display='block';
+  out.innerHTML='<span style="color:var(--sub)">正在请求 '+baseVal()+'/chat/completions …</span>';
+  try{
+    const r=await fetch(baseVal()+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:'用一句话介绍你自己'}]})});
+    const j=await r.json();
+    const c=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||JSON.stringify(j.error||j);
+    out.innerHTML='<div style="background:#0b1120;border:1px solid var(--line);border-radius:9px;padding:12px;color:#a8e5c9">'+
+      '<b style="color:var(--ok)">✓ 通了</b>　上游 <span class="mono">'+esc(j.hub_upstream||'—')+'</span>　'+(j.hub_latency||'')+'s<br><br>'+esc(c)+'</div>';
+  }catch(e){out.innerHTML='<div style="color:var(--bad)">请求失败：'+esc(e.message)+'（Render 免费层闲置后冷启动约需 30-60 秒，稍后点「在线试一句」重试即可）</div>';}
+}
+
+initLanes();initFilters();initCode();render(true);
+</script>
+</body>
+</html>
