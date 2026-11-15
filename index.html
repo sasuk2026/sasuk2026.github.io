@@ -273,8 +273,8 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
     已排除 embedding / 图像 / TTS / 视频与社区自定义条目，跨站去重后得到下列数目。<br>
     <b>但必须说清两件事：</b>① 这一层<b>需要注册该站的免费 Key</b>，本网关不代管；② 本目录<b>没有对它们逐条匿名实测</b>。
     它们跟上方 218 个「名字兼容」的本质区别是：这些 ID 在对应站真实存在、拿 Key 后调用的就是该模型；而那 218 个只是 llmfreeapikey 一个 <span class="mono">free-ai</span> 底座的别名，填什么名字都一样。<br>
-    <b>本轮另找到的匿名免 key 端点：</b><span class="mono">https://api.binjie.fun/api/generateStream</span>（Yqcloud，普通 POST、实测出字，但非 OpenAI 协议，需适配）；
-    Pollinations 老端点匿名档对 <span class="mono">openai</span> / <span class="mono">openai-fast</span> / <span class="mono">gpt-oss-20b</span> 等真模型可用，限流为每 IP 45 秒 1 次。
+    <b>本轮另找到的匿名免 key 端点：</b><span class="mono">https://api.binjie.fun/api/generateStream</span>（Yqcloud，普通 POST、实测出字，但非 OpenAI 协议、需适配，故未收进目录）。<br>
+    <b>Pollinations 慢测结论（已证伪上一轮推断）：</b>并发时 <span class="mono">mistral</span> / <span class="mono">llama</span> / <span class="mono">deepseek-reasoning</span> 等返回的 402 只是「每 IP 45 秒 1 次」限流，其优先级高于模型名校验。改为串行慢测（每次间隔 46 秒、逐个问身份）后，18 个候选里<b>只有 <span class="mono">openai-fast</span> 与 <span class="mono">gpt-oss-20b</span> 真出字</b>（二者已在上方目录内，自报均为 "ChatGPT, OpenAI"，属同一/相近底座），<b>其余 16 个全部 404 NOT_FOUND</b>，即这些简名并不存在。因此匿名免 key 层<b>没有新增任何真模型</b>，上方 39 个原生 ID 仍是这一层的全部。
   </div>
   <div class="ftbar">
     <input id="ftQ" placeholder="搜索真模型（ID / 系列 / 站点）" oninput="renderFT()">
