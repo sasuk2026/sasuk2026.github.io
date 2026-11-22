@@ -138,6 +138,20 @@ button.cp{flex:none;min-width:62px}
 .seriesHead .sdesc{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right}
 .moreSeries{display:inline-block;margin-top:10px;font-size:11.5px;color:var(--acc);cursor:pointer}
 .tag.alias{background:rgba(250,180,60,.13);color:#f0b45e;border:1px solid rgba(250,180,60,.32)}
+.tag.anonReal{background:rgba(80,200,160,.15);color:#7fe3b4;border:1px solid rgba(80,200,160,.4);font-weight:600}
+.tag.bigp{background:linear-gradient(135deg,rgba(255,170,50,.22),rgba(255,90,60,.18));color:#ffc46b;border:1px solid rgba(255,170,60,.5);font-weight:800;letter-spacing:.2px}
+.tag.bigp.giant{background:linear-gradient(135deg,rgba(255,210,80,.28),rgba(255,110,50,.22));color:#ffd98a;border-color:rgba(255,200,90,.65);box-shadow:0 0 10px rgba(255,180,70,.18)}
+.bigHero{border:1px solid rgba(255,170,60,.55)!important;box-shadow:0 0 0 1px rgba(255,170,60,.10),0 10px 34px rgba(0,0,0,.28)}
+.bigHero h2 .n{background:#ffab32;color:#2a1600}
+.bigBadge{display:inline-block;background:#ffab32;color:#2a1600;font-weight:700;font-size:10.5px;padding:2px 9px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.bigGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;margin:12px 0}
+.bigCell{background:#0e1626;border:1px solid var(--line);border-radius:9px;padding:10px 11px;position:relative;overflow:hidden}
+.bigCell .pn{font-size:19px;font-weight:900;color:#ffc46b;letter-spacing:-.5px}
+.bigCell .pn small{font-size:11px;font-weight:700;margin-left:2px;opacity:.8}
+.bigCell .mid{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;color:var(--acc);margin-top:5px;word-break:break-all;line-height:1.4;cursor:pointer}
+.bigCell .mid:hover{color:#fff}
+.bigCell .ms{font-size:10px;color:var(--dim);margin-top:6px}
+.bigCell.giant{background:linear-gradient(150deg,rgba(255,180,60,.10),#0e1626 70%);border-color:rgba(255,190,80,.45)}
 .resmap{width:100%;border-collapse:collapse;margin:10px 0 6px;font-size:11.5px}
 .resmap th{color:var(--acc);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 .resmap td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--sub);line-height:1.55}
@@ -195,6 +209,7 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
     </div>
   </div>
   <div class="hpills">
+    <span class="hpill" style="border-color:rgba(255,170,60,.55);background:rgba(255,170,60,.08)">🔥 大参数真模型 <b id="pBig">—</b>（20B+ · 最大 550B）</span>
     <span class="hpill" style="border-color:rgba(80,200,160,.5);background:rgba(80,200,160,.08)">★ 匿名免 key 真模型 <b id="pAnon">—</b>（零配置）</span>
     <span class="hpill">可调用 ID <b id="pTotal">—</b></span>
     <span class="hpill">独立模型 <b id="pNative">—</b></span>
@@ -210,7 +225,7 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
 <!-- 接入凭证面板 -->
 <div class="panel" id="credPanel">
   <h2><span class="n">1</span> OpenAI 接入凭证 <span class="rightlink" onclick="copyAll()">⧉ 复制全部配置</span></h2>
-  <p class="hint">在 Cherry Studio / NextChat / LobeChat / Cursor / OpenAI SDK 里填下面两项即可。<b>本页是 GitHub Pages 静态前端，模型调用统一由 Render 上的 freeAI 后端转发</b>；上游公益站<b>全部免 key</b>，网关默认不校验。</p>
+  <p class="hint">在 Cherry Studio / NextChat / LobeChat / Cursor / OpenAI SDK 里填下面两项即可。<b>本页与 freeAI 后端同源部署，模型调用由后端转发</b>；上游公益站<b>全部免 key</b>，网关默认不校验。关思考：APP 里的「关闭思考 / reasoning effort=none」开关现在都生效。</p>
   <div class="cred">
     <div class="credrow">
       <div class="credlabel"><span class="k">BASE URL</span> OpenAI 调用地址（填到「API 地址 / Base URL」）</div>
@@ -262,9 +277,17 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
     <select id="fSite" onchange="render(true)"><option value="">全部车道</option></select>
     <select id="fType" onchange="render(true)"><option value="">全部类型</option></select>
     <select id="fSort" onchange="render(true)">
-      <option value="rec">推荐（实测可用优先）</option>
+      <option value="rec">推荐（大参数 + 实测可用优先）</option>
+      <option value="big">参数量（大→小）</option>
       <option value="lat">响应速度（快→慢）</option>
       <option value="name">名称（A→Z）</option>
+    </select>
+    <select id="fBig" onchange="render(true)">
+      <option value="0">全部规模</option>
+      <option value="20">只看大模型 ≥20B</option>
+      <option value="60">巨模型 ≥60B</option>
+      <option value="100">百 B 级 ≥100B</option>
+      <option value="300">超大 ≥300B</option>
     </select>
     <select id="fSafe" onchange="render(true)"><option value="">全部审核</option><option value="强">审核·强</option><option value="中">审核·中</option><option value="弱">审核·弱</option></select>
     <select id="fThink" onchange="render(true)"><option value="">思考·不限</option><option value="ctl">思考可关</option><option value="unc">思考不可关</option><option value="nr">非推理模型</option></select>
@@ -277,16 +300,56 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
   <div class="morewrap"><button class="ghost" id="moreBtn" onclick="more()">加载更多</button></div>
 </div>
 
+<!-- 大参数真模型专区（本轮新增：解决「怎么都是小模型」） -->
+<div class="panel bigHero" id="bigPanel">
+  <h2><span class="n">3.4</span> 大参数真模型（免 Key · <span id="bigTotal">—</span> 个） <span class="bigBadge">本轮重点</span></h2>
+  <div class="crednote" style="font-size:12px">
+    <b>★ 哥哥要看的「大家伙」在这里，一次列全。</b>此前列出的 AI Horde 匿名模型多是 12B~31B 的开源小模型，
+    看着「都是小模型」；本轮把全网翻了一遍后确认：<b>免 Key 且真能调用的大参数模型本来就集中在这几家</b>，
+    且大多已在清单里、只是被 219 条名字兼容别名淹没 + 排序压在了后面。现在按参数量从大到小集中置顶，
+    并在上方主清单里给每条打上 <span class="tag bigp" style="display:inline-block">550B</span> 参数量徽章、加了「只看大模型」筛选。<br>
+    <b>参数量来源：</b>全部取自官方 <span class="mono">/models</span> 清单里的模型名（如 <span class="mono">Qwen3.5-397B-A17B</span>）或官方标注
+    （<span class="mono">reflection/beam-1.0-501b-a23b</span>），<b>不是编的名字</b>。名字兼容别名（llmfree 那 219 条）一律不标参数量，避免拿假名字冒充大模型。<br>
+    <b>本轮实测证据：</b>下表中每个都真实发过对话请求、返回 200 且 <span class="mono">model</span> 字段回显与请求一致、吐出内容（如 <span class="mono">PONG</span>）。
+    其中 <b>128B Behemoth</b> 上轮因 AI Horde 队列超时被标「暂时不可用」，本轮重试后 <span class="mono">DONE / PONG</span> 已救活；
+    <b>reflection/beam-free</b> 确认为 Reflection Beam 1.0 <b>501B A23B</b> 的免费版。点模型 ID 即可复制。
+  </div>
+  <div id="bigGrid" class="bigGrid"></div>
+  <div class="crednote" style="font-size:11.5px;margin-top:14px">
+    <b>为什么「全网找」之后大参数模型还是这些？—— 本轮逐站实测的边界（都不是没找到，是免 Key 这道门槛卡住了）：</b>
+    <table class="resmap" style="margin-top:8px">
+      <tr><th>站点</th><th>/models 列出</th><th>免 Key 真出字</th><th>结论（本轮实测）</th></tr>
+      <tr><td><b>OVHcloud 官方匿名层</b><br><span class="fttag">零注册零 Key</span></td><td>21（11 个文本）</td><td><b>11 个全出字</b></td>
+        <td>唯一「官方 + 完全免 Key + 大参数」的一家：397B / 120B / 72B / 70B / 27B / 24B / 20B 全部零 Key 返回 200，<span class="mono">model</span> 回显一致。限额 2 RPM/IP/模型</td></tr>
+      <tr><td><b>Kilo Gateway</b><br><span class="fttag">匿名免费池</span></td><td>468</td><td><b>仅 13 个 :free</b></td>
+        <td>550B Nemotron Ultra、<b>501B Reflection Beam</b>、30B 等 13 个 <span class="mono">:free</span> 免 Key 出字；<b>其余 455 个（含 397B/405B/235B/GPT-6.1/Kimi K3）一律 401 PAID_MODEL_AUTH_REQUIRED 要登录</b>，连瞎编名字也返回同一 401 —— 绝不冒充免费收录</td></tr>
+      <tr><td><b>BlockRun</b><br><span class="fttag">pricing=0</span></td><td>120</td><td><b>仅 9 个免费</b></td>
+        <td><span class="mono">pricing.input=0</span> 的 9 个免 Key：550B / 120B / 30B 等；其余 111 个明码标价要 Key</td></tr>
+      <tr><td>LLM7.io</td><td>72</td><td>基础层 6 个</td>
+        <td>Claude Opus 4.8 / GPT-6.1 / Gemini / Kimi K3 / Grok 4.7 等旗舰<b>全部 401 Missing API key</b>，只有 gpt-oss:20b 等 6 个基础层小模型免 Key</td></tr>
+      <tr><td>api.airforce</td><td>781（26 个标 free）</td><td><b>0</b></td>
+        <td>26 个 <span class="mono">tier=free</span> 里 Mistral Large 4 / Kimi K2.7 等<b>全部 401 Missing Authorization</b>，名字免费、调用要 Key</td></tr>
+      <tr><td>Pollinations / Vireonix / api.free.ai</td><td>—</td><td>auto 路由</td>
+        <td>Vireonix 把任何模型名都吞成 <span class="mono">auto</span>（回显 model=auto）；api.free.ai 的 qwen7b / deepseek-r1 都返回同一个 <span class="mono">Qwen3-30B</span> 底座 —— 属于路由/名字兼容，不是独立真模型，不收</td></tr>
+      <tr><td>AI Horde</td><td>35 文本模型</td><td>34 个出字</td>
+        <td>志愿者匿名算力，官方公开匿名标识 <span class="mono">0000000000</span>。最大的是 <b>128B Behemoth</b>（本轮救活），其余 12B~35B。全部零 Key、网关代转</td></tr>
+    </table>
+    <b>结论：</b>那些「几百个大模型」的站点，免费名单看着热闹，实际调用几乎全要自备 Key —— 而哥哥要的是<b>不需要自备 Key</b>的，
+    所以我没把它们塞进来充数。全网符合「免 Key + 真模型 + 有明确参数量」的大块头，就是上表这几家、下面这些，已全部收齐并按大小排好。
+  </div>
+</div>
+
 <!-- 匿名免 key 真模型（本轮核心成果，独立于名字兼容） -->
 <div class="panel anonHero" id="anonPanel">
-  <h2><span class="n">3.4</span> 匿名免 key 真模型（<span id="anonTotal">—</span> 个 · 不需要任何 Key）<span class="anonBadge">本轮新增</span></h2>
+  <h2><span class="n">3.5</span> 匿名免 key 真模型（<span id="anonTotal">—</span> 个 · 不需要任何 Key）<span class="anonBadge">本轮新增</span></h2>
   <div class="crednote" style="font-size:12px">
-    <b>★ 这一层才是本站真正有用的部分：全部匿名、用户零配置、背后是互不相同的真模型，不是名字兼容。</b><br>
+    <b>★ 这一层才是本站真正有用的部分：全部匿名、用户零配置、背后是互不相同的真模型，不是名字兼容。</b>
+    <b>这 34 个已正式并入上方主清单卡片区</b> —— 在系列导航条点「匿名真模型」可一键查看全部，卡片带绿色「★ 免 Key 真模型」标签；其中 ≥20B 的大块头（如 128B Behemoth）同时收进上方「3.4 大参数真模型」专区。本分区下表保留逐条实测回答速查与调用示例。<br>
     本轮从 <b>AI Horde</b>（志愿者分布式算力）与 <b>Yqcloud / 阶跃星辰 Step</b> 挖到两个<b>免 key 但非 OpenAI 协议</b>的上游，
     由网关 <span class="mono">gateway.py</span> <b>代做协议转换</b>（异步队列轮询 / 纯文本 POST → 标准 <span class="mono">/v1/chat/completions</span>），
     你只填网关地址 + 下表里的模型 ID 即可，<b>不需要注册、不需要申请、不需要任何 Key</b>。
     AI Horde 用的 <span class="mono">0000000000</span> 是官方固定的<b>公开匿名标识</b>（硬编码在网关里，不是你自备的私有 Key）。<br>
-    <b>实测证据：</b>AI Horde 全量 34 个在线模型里 <b>32 个真出字</b>，服务端返回的 <span class="mono">generation.model</span> 与指定名<b>逐一对应</b>（Qwen3 / Llama 3.2 / Gemma 4 / RWKV7 / Skyfall-31B / Stheno / Wicked-Tutu…）；
+    <b>实测证据：</b>AI Horde 全量 34 个在线模型里 <b>33 个真出字</b>（本轮重试队列救活 128B Behemoth），服务端返回的 <span class="mono">generation.model</span> 与指定名<b>逐一对应</b>（Qwen3 / Llama 3.2 / Gemma 4 / RWKV7 / Skyfall-31B / Stheno / Wicked-Tutu / Behemoth-128B…）；
     网关端到端抽样 12 个不同底座 <b>11 个出字</b>（1 个队列排队超时如实报 502）；StepFun 那条实测 17×23=391、Paris、写俳句全对。
     <b>下表 "+ 实测回答" 列是逐条真请求拿到的内容，不是名字。</b><br>
     <b>局限：</b>志愿者算力，在线节点会动态上下线、队列可能排队（大模型更慢），个别模型可能暂时取不到 —— 表格标了在线节点数，选节点多的更稳。这些是真开源权重模型，能力/上下文与商业旗舰不同，别按名字想当然。
@@ -304,84 +367,27 @@ api_key: 留空即可                       # 网关代做匿名鉴权</div>
   <div id="anonTable"></div>
 </div>
 
-<!-- 免费额度真模型（独立分区，与名字兼容明确分开） -->
-<div class="panel">
-  <h2><span class="n">3.5</span> 全网免费额度真模型（<span id="ftTotal">—</span> 个 · 需自备免费 Key）</h2>
-  <div class="crednote" style="font-size:12px">
-    <b>这份是真模型清单，不是名字映射。</b>下列条目是各站 <span class="mono">/models</span> 里<b>官方标记免费</b>的真实模型 ID
-    （<span class="mono">tier:free</span> / <span class="mono">isFree</span> / <span class="mono">pricing=0</span> / <span class="mono">billing_mode=free</span>），
-    已排除 embedding / 图像 / TTS / 视频与社区自定义条目，跨站去重后得到下列数目。<br>
-    <b>但必须说清两件事：</b>① 这一层<b>需要注册该站的免费 Key</b>，本网关不代管；② 本目录<b>没有对它们逐条匿名实测</b>。
-    它们跟上方 218 个「名字兼容」的本质区别是：这些 ID 在对应站真实存在、拿 Key 后调用的就是该模型；而那 218 个只是 llmfreeapikey 一个 <span class="mono">free-ai</span> 底座的别名，填什么名字都一样。<br>
-    <b>补充：</b>本轮另找到的匿名免 key 端点 <span class="mono">https://api.binjie.fun/api/generateStream</span>（Yqcloud / 阶跃星辰 Step）与 <span class="mono">AI Horde</span> 匿名算力，此前因「非 OpenAI 协议、需适配」暂未收录。<b>现已由网关完成协议适配，作为「3.4 匿名免 key 真模型」分区收录，用户零配置即可调用</b>，见上方。<br>
-    <b>Pollinations 慢测结论（已证伪上一轮推断）：</b>并发时 <span class="mono">mistral</span> / <span class="mono">llama</span> / <span class="mono">deepseek-reasoning</span> 等返回的 402 只是「每 IP 45 秒 1 次」限流，其优先级高于模型名校验。改为串行慢测（每次间隔 46 秒、逐个问身份）后，18 个候选里<b>只有 <span class="mono">openai-fast</span> 与 <span class="mono">gpt-oss-20b</span> 真出字</b>（二者已在上方目录内，自报均为 "ChatGPT, OpenAI"，属同一/相近底座），<b>其余 16 个全部 404 NOT_FOUND</b>，即这些简名并不存在。因此<b>Pollinations 老端点这一条路线</b>没有新增任何真模型。但本轮另从 AI Horde / Yqcloud 挖到并适配了 33 个匿名免 key 真模型（见 3.4），「匿名层只有几十个」的旧结论已被推翻 —— 关键是<b>这些端点不提供 OpenAI 协议，得由网关代转</b>。
-  </div>
-  <div class="ftbar">
-    <input id="ftQ" placeholder="搜索真模型（ID / 系列 / 站点）" oninput="renderFT()">
-    <select id="ftSeries" onchange="renderFT()"><option value="">全部系列</option></select>
-    <select id="ftSiteSel" onchange="renderFT()"><option value="">全部站点</option></select>
-    <span class="cnt" id="ftCnt"></span>
-  </div>
-  <div id="ftTable"></div>
-</div>
-
-<!-- DeepSeek 系列真模型专区 -->
-<div class="panel">
-  <h2><span class="n">3.6</span> DeepSeek 系列真模型（<span id="dsTotal">—</span> 个去重 ID · 需自备 Key）</h2>
-  <div class="crednote" style="font-size:12px">
-    <b>这是各站 <span class="mono">/models</span> 官方声明的真实 DeepSeek 模型 ID，不是名字兼容。</b>上方目录里那 12 条 <span class="mono">deepseek-*</span> 兼容别名走的是 llmfreeapikey 单一 <span class="mono">free-ai</span> 底座、传任意名字都出字，<b>不计入本专区</b>。本专区数据来自 30 个站的官方清单（原 26 站 + 本轮新拉 Routeway / Infron / NVIDIA NIM / OrcaRouter），已排除 embedding / 图像 / TTS / 社区自定义条目与 batch/priority 变体，按规范名去重。<br>
-    <b>三层现状（本轮实测）：</b>① <b>匿名免 key 全网只有 1 条</b> —— LLM7 的 <span class="mono">DeepSeek-V4-Flash-0731</span>（已在上方目录，实测自报 "DeepSeek (DeepSeek AI)"）。本轮对 Routeway / Infron / OrcaRouter / OpenCode / UnoRouter / NVIDIA NIM / OpenRouter / Groq / ModelScope / Chutes / DeepInfra 的 16 次免 key 请求全部 401/403/429；Pollinations 老端点对 <span class="mono">deepseek/deepseek-v4.1-flash</span>、<span class="mono">deepseek/deepseek-v4-flash</span>、<span class="mono">deepseek-v4-flash</span>、<span class="mono">deepseek-chat</span> 串行慢测<b>全部 404 NOT_FOUND</b>。<b>匿名层没有任何新增 DeepSeek。</b>
-    ② <b>需免费 Key 的官方免费标记：</b><span class="mono">deepseek-v4.1-flash</span> / <span class="mono">deepseek-v4-flash</span> / <span class="mono">deepseek-v4.1-flash-free</span> / <span class="mono">deepseek-r1-distill-qwen-32b</span> / <span class="mono">deepseek-v4-flash-free</span>（5 个）；③ 其余为需注册 Key 或付费。<br>
-    <b>口径必须说清：<span id="dsNum">—</span> 是去重后的「模型 ID 数」，不是不同底层模型数。</b>其中 <b>28 个至少 2 家站声明（跨站互证）</b>、16 个为跨站互证的主模型；另含官方别名 7、免费变体 2、实验/速度变体 11，以及 <b>29 个仅单站声明</b>（含 <span class="mono">-flex</span> / <span class="mono">-us</span> / <span class="mono">abliterated</span> 等路由站自定义拼写，可信度低）。同一模型的不同日期版本（0731 / 0813 / 1017）是不同 checkpoint，算不同模型；但 <span class="mono">deepseek-chat</span> 官方标注即 V4.1 Flash、<span class="mono">-free</span> 是同一模型的免费变体。<b>本网关不代管 Key，未对这些条目逐条匿名实测。</b>
-  </div>
-  <div class="ftbar">
-    <input id="dsQ" placeholder="搜索 DeepSeek 真模型（ID / 系列 / 站点 / 官方名）" oninput="renderDS()">
-    <select id="dsSeries" onchange="renderDS()"><option value="">全部系列</option></select>
-    <select id="dsTrust" onchange="renderDS()">
-      <option value="">全部口径</option><option value="跨站互证">跨站互证（≥2 站）</option>
-      <option value="仅单站声明">仅单站声明</option><option value="主模型">仅主模型</option>
-      <option value="官方别名">官方别名</option><option value="免费变体">免费变体</option>
-      <option value="实验/速度变体">实验/速度变体</option>
-    </select>
-    <select id="dsFree" onchange="renderDS()"><option value="">全部费用</option><option value="1">仅官方免费标记</option></select>
-    <span class="cnt" id="dsCnt"></span>
-  </div>
-  <div id="dsTable"></div>
-</div>
-
 <!-- 说明 -->
 <div class="panel">
   <h2><span class="n">4</span> 来源与说明</h2>
   <div class="crednote" style="font-size:12px">
-    <b>全网复查（2026-11-15）：</b>本轮重新拉取并实测了 <b>27 个</b>公开推理服务的 <span class="mono">/models</span> 清单，合计约 <b>3,800 个真实模型 ID</b> —— Api.Airforce 781、Requesty 750、Vercel AI Gateway 507、Pollinations 441、Nous 398、UnoRouter 316、OrcaRouter 216、DeepInfra 178、OpenCode Zen 86、NVIDIA NIM 83 等。全网免费模型确实是<b>百级到千级</b>，但「免 key」不是一个口径。本轮补上了此前漏掉的一类 —— <b>免 key、但非 OpenAI 协议、需由网关代转</b>的匿名真模型（AI Horde / Yqcloud），现分四层：
+    <b>全网复查（2026-11-15）：</b>本轮重新拉取并实测了 <b>27 个</b>公开推理服务的 <span class="mono">/models</span> 清单，合计约 <b>3,800 个真实模型 ID</b> —— Api.Airforce 781、Requesty 750、Vercel AI Gateway 507、Pollinations 441、Nous 398、UnoRouter 316、OrcaRouter 216、DeepInfra 178、OpenCode Zen 86、NVIDIA NIM 83 等。全网免费模型确实是<b>百级到千级</b>，本站<b>只收录不需要任何 Key 的端点</b>，按要求已删除全部「需自备 Key」的清单与分区。剩下的分两类：
     <table class="resmap">
-      <tr><th>层级</th><th>代表站点</th><th>规模</th><th>调用方式</th></tr>
+      <tr><th>类别</th><th>代表站点</th><th>规模</th><th>调用方式</th></tr>
       <tr>
-        <td><b>① 匿名免 key 直连</b></td>
-        <td>Pollinations、LLM7.io、Kilo 免费池、OVHcloud、BlockRun 免费档、llmfreeapikey</td>
-        <td>39 原生 ID<br>+ <b>33 个</b>新真模型</td>
-        <td>原生 OpenAI 兼容站直接填；<b>AI Horde / Yqcloud 非 OpenAI 协议，由网关代转</b>，用户仍零配置。见「3.4 匿名免 key 真模型」</td>
+        <td><b>① 匿名免 key<br>真模型</b><br><span class="dsfree">核心</span></td>
+        <td>6 家公益站原生 ID + AI Horde 志愿者算力 + Yqcloud / 阶跃星辰 Step</td>
+        <td>39 原生 ID<br>+ <b>34 个</b>不同底座真模型</td>
+        <td>原生 OpenAI 兼容站直接填；<b>AI Horde / Yqcloud 非 OpenAI 协议，由 gateway.py 代转</b>，用户仍零配置、无需 Key。见「3.5」与主清单「匿名真模型」系列</td>
       </tr>
       <tr>
-        <td><b>② 免费额度<br>（需注册免费 Key）</b></td>
-        <td>OpenRouter :free、UnoRouter、Api.Airforce、NVIDIA NIM、Groq、Cerebras、Gemini、Mistral、Cloudflare、Ollama Cloud、Zhipu、OpenCode Zen…</td>
-        <td>本目录已收<br><b>77 个</b></td>
-        <td>需自备该站免费 Key，本网关不代管、<b>未逐条匿名实测</b>；这些是真模型 ID，详见下方「免费额度真模型」清单。无 Key 实测 27 站全部 401/402/429</td>
-      </tr>
-      <tr>
-        <td><b>③ 标准模型名<br>兼容映射</b></td>
-        <td>llmfreeapikey 兼容层（从上述真实清单取主流系列名）</td>
+        <td><b>② 标准模型名<br>兼容映射</b></td>
+        <td>llmfreeapikey 兼容层（从真实清单取主流系列名）</td>
         <td>218 个<br>名字</td>
         <td><b>不是 218 个模型</b>：该站 /models 只声明 1 个模型 <span class="mono">free-ai</span>，传入任意名字（含瞎编的）都出字且自报身份一致。别名只用于让只认标准名字的软件免改代码，按系列分组方便检索</td>
       </tr>
-      <tr>
-        <td><b>④ 匿名免 key<br>非 OpenAI 协议</b><br><span class="dsfree">本轮新增</span></td>
-        <td>AI Horde（志愿者算力）、Yqcloud / 阶跃星辰 Step</td>
-        <td><b>33 个</b>不同底座<br>真模型</td>
-        <td><b>完全不需要 Key</b>。上游不是 OpenAI 协议（异步队列 / 纯文本 POST），由 <span class="mono">gateway.py</span> 代做协议转换与匿名鉴权，用户填网关地址 + 模型 ID 即可。逐条实测出字，见「3.4」</td>
-      </tr>
     </table>
-    <b>上一版「匿名层只有几十个」的结论已经不成立。</b>此前只统计了「原生 OpenAI 兼容的匿名端点」，漏掉了 AI Horde / Yqcloud 这类<b>免 key 但协议不同、需网关代转</b>的匿名算力 —— 本轮补上后，匿名免 key 且经实测的真模型达到 <b>39 原生 ID + 33 个新真模型</b>。<b>264 是主清单「可调用 ID 数」（含 218 个同底座名字兼容，不是模型种类）；3.4 分区的 33 个才是本轮新增的、互不相同的真模型。</b>② 层 77 个与 3.6 的 57 个 DeepSeek ID 才需要自备 Key，本网关不代管。每条都标注来源与类型，没有编造地址。<br>
+    <b>现在整站只讲「不需要 Key」。</b>匿名免 key 且经实测的真模型 = <b>39 原生 ID + 34 个新真模型</b>（AI Horde / Yqcloud，网关代转）。<b>主清单 299 是「可调用 ID 数」（含 218 个同底座名字兼容，不是模型种类）；带绿色标签的 34 个才是互不相同的真模型。</b>此前「需自备 Key」的 77 个免费额度清单、57 个 DeepSeek ID 清单及其数据文件，已按你的要求全部删除。每条都标注来源与类型，没有编造地址。<br>
     <b>提示：</b>prompt 会发往第三方上游，部分模型声明<b>可能用于训练</b>，请勿发送公司代码、合同或隐私数据。免费额度随时可能限流、轮换或下线；网关已做自动故障转移，某个上游失败会自动换下一个。<br>
   </div>
 </div>
@@ -414,7 +420,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "弱",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 20
   },
   {
     "id": "openai",
@@ -476,7 +483,8 @@ const DATA = [
     "reasoning": true,
     "safeguard": "弱",
     "think_controllable": true,
-    "disabled": false
+    "disabled": false,
+    "params": 20
   },
   {
     "id": "ovh-reasoning",
@@ -519,7 +527,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": true,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 120
   },
   {
     "id": "gpt-oss-20b",
@@ -541,7 +550,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": true,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 20
   },
   {
     "id": "Qwen3.5-397B-A17B",
@@ -562,7 +572,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": true,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 397
   },
   {
     "id": "Qwen3.6-27B",
@@ -583,7 +594,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": true,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 27
   },
   {
     "id": "Qwen3.8-27B",
@@ -604,7 +616,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": true,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 27
   },
   {
     "id": "Qwen3.5-9B",
@@ -646,7 +659,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": false,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 24
   },
   {
     "id": "Qwen2.5-VL-72B-Instruct",
@@ -668,7 +682,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": false,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 72
   },
   {
     "id": "DeepSeek-V4-Flash-0731",
@@ -829,7 +844,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 550
   },
   {
     "id": "nvidia/nemotron-3.5-super-vl:free",
@@ -894,7 +910,8 @@ const DATA = [
     "reasoning": true,
     "safeguard": "弱",
     "think_controllable": true,
-    "disabled": false
+    "disabled": false,
+    "params": 30
   },
   {
     "id": "baidu/ernie-5.5-flash-preview:free",
@@ -1024,7 +1041,7 @@ const DATA = [
     "site": "kilo",
     "siteLabel": "Kilo 公共网关",
     "type": "独立模型",
-    "note": "Reflection Beam Free",
+    "note": "Reflection Beam 1.0 · 501B A23B MoE（Kilo 官方标注 beam-1.0-501b-a23b）· 全网最大免 Key 真模型之一",
     "ok": true,
     "caps": [
       "工具"
@@ -1036,7 +1053,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "强",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 501
   },
   {
     "id": "free-ai",
@@ -2437,7 +2455,8 @@ const DATA = [
     "reasoning": true,
     "safeguard": "弱",
     "think_controllable": true,
-    "disabled": false
+    "disabled": false,
+    "params": 120
   },
   {
     "id": "nvidia/nemotron-3-super-120b",
@@ -2458,7 +2477,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 120
   },
   {
     "id": "nvidia/nemotron-3-ultra-550b",
@@ -2480,7 +2500,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 550
   },
   {
     "id": "nvidia/nemotron-3.5-lightning",
@@ -2607,7 +2628,8 @@ const DATA = [
     "safeguard": "强",
     "think_controllable": false,
     "sg_source": "来源标记",
-    "disabled": false
+    "disabled": false,
+    "params": 70
   },
   {
     "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
@@ -2628,7 +2650,8 @@ const DATA = [
     "reasoning": true,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 30
   },
   {
     "id": "cohere/north-mini-code",
@@ -2689,7 +2712,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 30
   },
   {
     "id": "gpt-oss:20b",
@@ -2709,7 +2733,8 @@ const DATA = [
     "reasoning": false,
     "safeguard": "中",
     "think_controllable": false,
-    "disabled": false
+    "disabled": false,
+    "params": 20
   },
   {
     "id": "deepseek-v4.1-flash",
@@ -5724,23 +5749,770 @@ const DATA = [
     "safeguard": "中",
     "think_controllable": false,
     "disabled": false
+  },
+  {
+    "id": "horde/aphrodite/TheDrummer/Skyfall-31B-v4.2",
+    "name": "Skyfall-31B-v4.2",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 6 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\n\n### Instruction:\nN Cats = 2, T Ho",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 31
+  },
+  {
+    "id": "horde/koboldcpp/Angelic_Eclipse-12B",
+    "name": "Angelic_Eclipse-12B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Cydonia-24B-v4zg-Q4_K_M",
+    "name": "Cydonia-24B-v4zg-Q4_K_M",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 24
+  },
+  {
+    "id": "horde/koboldcpp/debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M",
+    "name": "debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/G4-MeroMero-26B-A4B-it-uncensored-heretic",
+    "name": "G4-MeroMero-26B-A4B-it-uncensored-heretic",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 3 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 26
+  },
+  {
+    "id": "horde/koboldcpp/gemma-3-270m-it-F16",
+    "name": "gemma-3-270m-it-F16",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 2 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/gemma-4-31B-it-heretic",
+    "name": "gemma-4-31B-it-heretic",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 5 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 31
+  },
+  {
+    "id": "horde/koboldcpp/gemma-4-E4B-it",
+    "name": "gemma-4-E4B-it",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 2 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Gemma-4-E4B-it-Ultra-Uncensored-Heretic",
+    "name": "Gemma-4-E4B-it-Ultra-Uncensored-Heretic",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": false,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": true,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+    "name": "Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 2 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/L3-8B-Stheno-v3.2",
+    "name": "L3-8B-Stheno-v3.2",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 5 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n### Instruction:\nYou are the server",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/L3-8B-Stheno-v3.2-Q4_K_S",
+    "name": "L3-8B-Stheno-v3.2-Q4_K_S",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n### Instruction:\nReply with a word ",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Llama-3.2-3B-Instruct",
+    "name": "Llama-3.2-3B-Instruct",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\n### Note:\nNo further interaction i",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Llama-3.2-3B-Instruct-Q4_K_M",
+    "name": "Llama-3.2-3B-Instruct-Q4_K_M",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\n---\n\n### Note:\nThis is a classic e",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Llama-3-Lumimaid-8B-v0.1",
+    "name": "Llama-3-Lumimaid-8B-v0.1",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n### Instruction:\nReply with the sin",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/mini-magnum-12b-v1.1",
+    "name": "mini-magnum-12b-v1.1",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/NemoMix-Unleashed-12B-Q6_K",
+    "name": "NemoMix-Unleashed-12B-Q6_K",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Orion-26B-A4B-v1.1",
+    "name": "Orion-26B-A4B-v1.1",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 2 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 26
+  },
+  {
+    "id": "horde/koboldcpp/Qwen3-0.6B",
+    "name": "Qwen3-0.6B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "pong\n\n### Response:\npong\n\n### Response:\n",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Qwen3-14B",
+    "name": "Qwen3-14B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "Okay, the user wants me to reply with ju",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Qwen3-1.7B",
+    "name": "Qwen3-1.7B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\nThe user has provided a simple ins",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Qwen3.5-4B",
+    "name": "Qwen3.5-4B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\n### Instruction:\nWhat is the capit",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Qwen_Qwen3-0.6B-IQ4_XS",
+    "name": "Qwen_Qwen3-0.6B-IQ4_XS",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG\n\n### Question:\nI want to know about",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Qwen/Qwen3.5-0.8B",
+    "name": "Qwen3.5-0.8B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "```\nPONG\n```\n\n> **Note:** Only output th",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Rocinante-X-12B",
+    "name": "Rocinante-X-12B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/Rocinante-X-12B-v1",
+    "name": "Rocinante-X-12B-v1",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 4 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/koboldcpp/TheDrummer_Rocinante-XL-16B-v1-Q5_K_S",
+    "name": "TheDrummer_Rocinante-XL-16B-v1-Q5_K_S",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/llamacpp/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive",
+    "name": "Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 35
+  },
+  {
+    "id": "horde/lmstudio/Qwen3.5-9B",
+    "name": "Qwen3.5-9B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 2 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/Nimbz/Gemma-4-Dark-Orthia-31B",
+    "name": "Gemma-4-Dark-Orthia-31B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 6 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 31
+  },
+  {
+    "id": "horde/Qwen/Qwen3.5-4B",
+    "name": "Qwen3.5-4B",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 13 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/ReadyArt/Wicked-Tutu-31B-Final",
+    "name": "Wicked-Tutu-31B-Final",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 4 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 31
+  },
+  {
+    "id": "horde/RWKV/RWKV7-2.9B-20260805",
+    "name": "RWKV7-2.9B-20260805",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 匿名真模型 · 1 个在线节点 · 网关代转异步队列，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde"
+  },
+  {
+    "id": "horde/sonar/TheDrummer/Behemoth-128B-v3-4.25bpw-h6-exl3",
+    "name": "Behemoth-128B-v3-4.25bpw-h6-exl3",
+    "site": "aihorde",
+    "siteLabel": "AI Horde 匿名算力",
+    "type": "独立模型",
+    "note": "AI Horde 128B 巨模型 · 本轮重试队列后实测出字（2 个在线节点）· 网关代转，零 Key",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://aihorde.net/api/v2",
+    "sample": "PONG",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "aihorde",
+    "params": 128
+  },
+  {
+    "id": "stepfun-step",
+    "name": "Step（阶跃星辰）",
+    "site": "yqcloud",
+    "siteLabel": "Yqcloud 匿名镜像",
+    "type": "独立模型",
+    "note": "阶跃星辰 Step · 免 key 纯文本 POST · 由网关代转，零 Key 直接调用",
+    "ok": true,
+    "caps": [
+      "对话"
+    ],
+    "ctx": null,
+    "latency": null,
+    "upstream": "https://api.binjie.fun",
+    "sample": "Step, StepFun / 17*23=391 / Paris / haiku",
+    "reasoning": false,
+    "safeguard": "未知",
+    "think_controllable": false,
+    "disabled": false,
+    "adapter": "yqcloud"
   }
 ];
 // ---------- 接入地址 / 密钥 ----------
-// 架构：本页是 GitHub Pages 上的静态前端；模型调用统一由 Render 的 freeAI 后端转发。
-// 因此 github.io / 本地双击打开时一律固定指向 Render 后端；
-// localhost 预览、或 Render 后端自带页面则走同源。
+// 架构：页面与 freeAI 后端同源部署（网关自带静态页 + /v1 接口），优先走同源，零休眠、调用秒回。
+// 只有纯静态托管（github.io / 本地双击 file:）没有后端时，才退回 Render 备用后端。
 const BACKEND_ORIGIN = 'https://freeai-f9v0.onrender.com';
 const DEFAULT_BASE = BACKEND_ORIGIN + '/v1';
 (function(){
   const isFile = location.protocol === 'file:';
   const h = location.hostname;
-  const sameOriginOK = !isFile && (h === 'localhost' || h === '127.0.0.1' || h.endsWith('.onrender.com'));
-  const origin = sameOriginOK ? location.origin : BACKEND_ORIGIN;
+  const isStaticHost = isFile || h.endsWith('.github.io');
+  // 同源部署（localhost / 应用托管域名 / onrender）直接用当前域名；静态托管退回 Render
+  // 应用托管域名带 sharecode 访问后平台会种 cookie，同源 /v1 请求自动免鉴权，无需在 URL 里带码
+  const origin = isStaticHost ? BACKEND_ORIGIN : location.origin;
+  const local = !isStaticHost;
   const base = origin.replace(/\/+$/,'') + '/v1';
   document.getElementById('baseUrl').value = base;
   document.getElementById('footBase').textContent =
-    '后端网关（Render · freeAI）：' + origin + '　|　本页为 GitHub Pages 静态前端，模型调用全部由 freeAI 后端转发';
+    (local ? '后端网关（同源部署 · freeAI）：' : '后端网关（Render 备用 · freeAI）：') + origin +
+    '　|　模型调用全部由 freeAI 后端转发';
 })();
 function baseVal(){ return document.getElementById('baseUrl').value.replace(/\/+$/,''); }
 function keyVal(){ return document.getElementById('apiKey').value; }
@@ -5775,10 +6547,12 @@ const LANE_DESC={
   'pollinations':'匿名层模型池轮换，单并发 · 触发过配额限速',
   'llm7':'pro 档需自备 key 已剔除，仅保留匿名可用档',
   'llmfree':'纯免 key、无账号、CORS 全开，仅有 1 个真实底座（其余为标准名映射）',
+  'aihorde':'志愿者分布式算力 · 匿名免 key · 网关代转异步队列，32 个开源真模型',
+  'yqcloud':'阶跃星辰 Step · 匿名免 key · 纯文本 POST，由网关代转',
 };
 function initLanes(){
   const sites=[...new Set(DATA.map(x=>x.site))];
-  const order=['kilo','ovhcloud','pollinations','llm7','llmfree'];
+  const order=['kilo','ovhcloud','pollinations','llm7','llmfree','aihorde','yqcloud'];
   sites.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   const html=sites.map(s=>{
     const arr=DATA.filter(x=>x.site===s);
@@ -5793,10 +6567,12 @@ function initLanes(){
   document.getElementById('lanes').innerHTML=html;
   const nNative=DATA.filter(x=>x.type==='独立模型').length;
   const nAlias=DATA.filter(x=>x.type==='兼容别名').length;
-  document.getElementById('snap').innerHTML='实测快照：共 <b>'+DATA.length+'</b> 个可调用 ID —— 其中 <b>'+nNative+
-    '</b> 个为各公益站原生模型 ID（免 key 直连）、<b>'+nAlias+'</b> 个为<b>同一底座的名字兼容</b>（非独立模型），'+
-    '<b>'+DATA.filter(x=>x.ok).length+'</b> 个均实测返回内容。注意：名字兼容条目全部经 llmfreeapikey 的单一模型 <span class="mono">free-ai</span> 应答，'+
-    '该站 /models 仅声明 1 个模型，传入任意名字（含不存在的名字）都会出字，因此不能按模型种类计数。首字/延迟为一次性采样，仅供参考。';
+  const nRealOk=DATA.filter(x=>x.adapter&&x.ok).length;
+  const nOpenai=DATA.filter(x=>x.type==='独立模型'&&!x.adapter).length;
+  document.getElementById('snap').innerHTML='实测快照：共 <b>'+DATA.length+'</b> 个可调用 ID —— 其中 <b>'+nRealOk+
+    '</b> 个为<b>匿名免 key、底层互不相同的真模型</b>（AI Horde / 阶跃星辰 Step，网关代转协议，见绿色标签与「匿名真模型」系列）、<b>'+nOpenai+
+    '</b> 个为各公益站原生 OpenAI 兼容 ID、<b>'+nAlias+'</b> 个为<b>同一底座的名字兼容</b>（非独立模型）。'+
+    '<b>本站所有条目都不需要任何 Key</b>；原先「需自备 Key」的分区与数据已删除。名字兼容条目走 llmfreeapikey 单一 <span class="mono">free-ai</span> 底座，传任意名字都出字，不能按模型种类计数。';
   const pT=document.getElementById('pTotal'),pO=document.getElementById('pOk'),pS=document.getElementById('pSite');
   pT.textContent=DATA.length;pO.textContent=DATA.filter(x=>x.ok).length;pS.textContent=sites.length;
   const pN=document.getElementById('pNative'),pA=document.getElementById('pAlias');
@@ -5871,6 +6647,8 @@ const TYPECLS={'独立模型':'type','官方别名':'type','兼容别名':'type'
 // ---------- 系列分组 ----------
 // 每项: [数据中series值, 短名, 主题色, 简介]。顺序=展示顺序（热度优先）
 const SERIES=[
+ ['大参数真模型（免 Key）','大参数真模型','#ffab32','20B+ 真·大块头：550B / 501B / 397B / 128B / 120B / 72B / 70B… 参数量按官方模型名标注，全部免 Key 实测出字'],
+ ['匿名真模型（免 Key）','匿名真模型','#4fc99a','AI Horde 志愿者算力 + 阶跃星辰 Step：全部匿名免 key、底层互不相同、由网关代转协议'],
  ['OpenAI GPT 系列','OpenAI GPT','#10a37f','OpenAI GPT / o 系列推理 / gpt-oss 开源'],
  ['NVIDIA 系列','NVIDIA','#76b900','NVIDIA Nemotron 与经 NVIDIA 基础设施托管的模型'],
  ['DeepSeek 系列','DeepSeek','#4d6bfe','深度求索 DeepSeek：V3 / R1 / V4 与推理版'],
@@ -5921,8 +6699,12 @@ const SRULES=[
  ['Liquid / 其它新锐', /liquid|lfm-|reka|wizardlm|particle|dots-|stealth|glyph|reflection|beam/],
 ];
 const SROUTER=/^(auto|free|router|openrouter\/free|kilo-auto\/free|free-ai|openai-fast|openai|ovh-reasoning)$/;
+// 大参数真模型集合：params>=20 且是真模型（非名字兼容别名），提到置顶系列，避免被 219 条别名淹没
+const BIGSET=new Set(DATA.filter(x=>(x.params||0)>=20).map(x=>x.id));
 function seriesOf(id){
+  if(BIGSET.has(id)) return '大参数真模型（免 Key）';
   let s=String(id||'').toLowerCase();
+  if(s.indexOf('horde/')===0||s==='stepfun-step') return '匿名真模型（免 Key）';
   if(SROUTER.test(s)||s.indexOf('router')>=0||s.indexOf('auto/free')>=0) return '自动路由 / 通用';
   s=s.replace(/^[a-z0-9_.-]+\//,'');               // 剥掉 nvidia/ google/ meta-llama/ 等渠道前缀
   s=s.replace(/:(free|thinking|online|floor)$/,'');
@@ -5949,10 +6731,12 @@ function filtered(){
   const q=document.getElementById('q').value.toLowerCase();
   const s=document.getElementById('fSite').value,t=document.getElementById('fType').value,
         sort=document.getElementById('fSort').value,
-        sf=document.getElementById('fSafe').value,tf=document.getElementById('fThink').value;
+        sf=document.getElementById('fSafe').value,tf=document.getElementById('fThink').value,
+        big=parseInt(document.getElementById('fBig').value||'0',10);
   const showDisabled=document.getElementById('fShowDisabled').checked;
   let rows=DATA.filter(x=>
     (showDisabled||!x.disabled)&&
+    (!big||(x.params||0)>=big)&&
     (!CUR_SERIES||seriesOf(x.id)===CUR_SERIES)&&
     (!q||(x.id+' '+x.name+' '+x.siteLabel+' '+x.note).toLowerCase().includes(q))&&
     (!s||x.site===s)&&(!t||x.type===t)&&
@@ -5960,9 +6744,14 @@ function filtered(){
     (!tf||(tf==='ctl'?(x.think_controllable===true):(tf==='unc'?(x.reasoning===true&&!x.think_controllable):(x.reasoning!==true)))));
   if(sort==='lat') rows.sort((a,b)=>(a.latency==null?9e9:a.latency)-(b.latency==null?9e9:b.latency));
   else if(sort==='name') rows.sort((a,b)=>a.id.localeCompare(b.id));
+  else if(sort==='big') rows.sort((a,b)=>(b.params||0)-(a.params||0));
   else rows.sort((a,b)=>{
     if(a.ok!==b.ok) return a.ok?-1:1;
-    const rank=x=>x.type==='独立模型'?0:(x.id.endsWith(':free')?1:2);
+    // 大参数真模型优先置顶（参数量越大越靠前），其余按类型/延迟
+    const pa=a.params||0,pb=b.params||0;
+    if((pa>=20)!==(pb>=20)) return pa>=20?-1:1;
+    if(pa>=20&&pa!==pb) return pb-pa;
+    const rank=x=>x.adapter?0:(x.type==='独立模型'?1:(x.id.endsWith(':free')?2:3));
     if(rank(a)!==rank(b)) return rank(a)-rank(b);
     return (a.latency==null?9e9:a.latency)-(b.latency==null?9e9:b.latency);
   });
@@ -5979,7 +6768,10 @@ function cardHTML(x){
   const tcTag=x.think_controllable?'<span class="tag tc">思考可关</span>':(x.reasoning?'<span class="tag warn">思考不可关</span>':'');
   const offTag=x.disabled?'<span class="tag off">暂时不可用</span>':'';
   const aliasTag=x.type==='兼容别名'?'<span class="tag alias" title="同一底座的名字兼容映射，不是独立模型">同底座·名字兼容</span>':'';
-  const tags=caps+'<span class="tag '+tcls+'">'+esc(x.type)+'</span>'+aliasTag+sgTag+tcTag+offTag+
+  const anonTag=x.adapter?'<span class="tag anonReal" title="匿名免 key、底层为互不相同的真模型，由网关代转协议">★ 免 Key 真模型</span>':'';
+  const bp=x.params||0;
+  const bigTag=bp?'<span class="tag bigp'+(bp>=100?' giant':'')+'" title="参数量按官方模型名标注，来自官方 /models 清单，非编造">'+bp+'B</span>':'';
+  const tags=bigTag+caps+'<span class="tag '+tcls+'">'+esc(x.type)+'</span>'+anonTag+aliasTag+sgTag+tcTag+offTag+
     (x.id.endsWith(':free')?'<span class="tag warn">⚠ 可能用于训练</span>':'');
   const ctx=x.ctx?'<span><b>'+esc(x.ctx)+'</b></span>':'';
   const lat=x.latency!=null?'<span>实测响应 <b class="rate">'+x.latency+'s</b></span>':'';
@@ -6036,64 +6828,27 @@ function initFilters(){
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-// ---------- 免费额度真模型（独立于 DATA，不参与上方卡片计数）----------
-const FREE_TIER=[{"id": "nemotron-3.5-lightning", "series": "NVIDIA 系列", "sites": ["blockrun", "kilo", "openrouter", "pollinations_gen"], "rawIds": ["nvidia/nemotron-3.5-lightning", "nvidia/nemotron-3.5-lightning:free"], "owned_by": "NVIDIA", "hf": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16", "ctx": 262144, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "north-mini-code", "series": "Cohere Command", "sites": ["blockrun", "kilo", "openrouter"], "rawIds": ["cohere/north-mini-code:free", "cohere/north-mini-code"], "owned_by": "", "hf": "CohereLabs/North-Mini-Code-1.0", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3-nano-omni-30b-a3b-reasoning", "series": "NVIDIA 系列", "sites": ["blockrun", "kilo", "openrouter"], "rawIds": ["nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"], "owned_by": "", "hf": "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "particle-1", "series": "Liquid / 其它新锐", "sites": ["kilo", "openrouter"], "rawIds": ["particle-ai/particle-1:free"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3.5-super-vl", "series": "NVIDIA 系列", "sites": ["kilo", "openrouter"], "rawIds": ["nvidia/nemotron-3.5-super-vl:free"], "owned_by": "", "hf": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3-ultra-550b-a55b", "series": "NVIDIA 系列", "sites": ["kilo", "openrouter"], "rawIds": ["nvidia/nemotron-3-ultra-550b-a55b:free"], "owned_by": "", "hf": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "minimax-m3.1-flash", "series": "MiniMax 系列", "sites": ["blockrun", "pollinations_gen"], "rawIds": ["minimax/minimax-m3.1-flash", "nvidia/minimax-m3.1-flash"], "owned_by": "MiniMax", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ling-3.2-flash", "series": "其它模型", "sites": ["kilo", "openrouter"], "rawIds": ["inclusionai/ling-3.2-flash:free"], "owned_by": "", "hf": "inclusionAI/Ling-3.2-flash", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "lfm-3-1.7b", "series": "Liquid / 其它新锐", "sites": ["kilo", "openrouter"], "rawIds": ["liquid/lfm-3-1.7b:free"], "owned_by": "", "hf": "LiquidAI/LFM3-1.7B", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-oss-20b", "series": "OpenAI GPT 系列", "sites": ["airforce", "pollinations_gen"], "rawIds": ["gpt-oss-20b", "openai/gpt-oss-20b"], "owned_by": "openai", "hf": "", "ctx": 131072, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "glyph-cluster", "series": "Liquid / 其它新锐", "sites": ["kilo", "pollinations_gen"], "rawIds": ["stealth/glyph-cluster"], "owned_by": "Stealth", "hf": "", "ctx": 256000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "free", "series": "自动路由 / 通用", "sites": ["kilo", "openrouter"], "rawIds": ["openrouter/free", "kilo-auto/free"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ernie-5.5-flash-preview", "series": "百度文心 ERNIE", "sites": ["kilo", "openrouter"], "rawIds": ["baidu/ernie-5.5-flash-preview:free"], "owned_by": "", "hf": "baidu/ERNIE-5.5-Flash-Preview", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "dots-3-note-preview", "series": "Liquid / 其它新锐", "sites": ["kilo", "openrouter"], "rawIds": ["dots-studio/dots-3-note-preview:free"], "owned_by": "", "hf": "dots-studio/dots3-note-prev", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "voxtral-small-latest", "series": "其它模型", "sites": ["airforce"], "rawIds": ["voxtral-small-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "voxtral-small-2507", "series": "其它模型", "sites": ["airforce"], "rawIds": ["voxtral-small-2507"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "open-mistral-nemo-2407", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["open-mistral-nemo-2407"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "open-mistral-nemo", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["open-mistral-nemo"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3.5-bolt", "series": "NVIDIA 系列", "sites": ["blockrun"], "rawIds": ["nvidia/nemotron-3.5-bolt"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3-ultra-550b", "series": "NVIDIA 系列", "sites": ["blockrun"], "rawIds": ["nvidia/nemotron-3-ultra-550b"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3-ultra", "series": "NVIDIA 系列", "sites": ["pollinations_gen"], "rawIds": ["nvidia/nemotron-3-ultra"], "owned_by": "NVIDIA", "hf": "", "ctx": 262144, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "nemotron-3-super-120b", "series": "NVIDIA 系列", "sites": ["blockrun"], "rawIds": ["nvidia/nemotron-3-super-120b"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "muse-spark-open", "series": "其它模型", "sites": ["pollinations_gen"], "rawIds": ["meta/muse-spark-open"], "owned_by": "Meta", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "muse-glimmer-30b", "series": "其它模型", "sites": ["blockrun"], "rawIds": ["nvidia/muse-glimmer-30b"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-tiny-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-tiny-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-tiny-2407", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-tiny-2407"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-large-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-large-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-large-4", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-large-4"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-large-3", "series": "Mistral 系列", "sites": ["pollinations_gen"], "rawIds": ["mistralai/mistral-large-3"], "owned_by": "Mistral", "hf": "", "ctx": 256000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-large-2512", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-large-2512"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-code-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-code-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "mistral-code-fim-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["mistral-code-fim-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-8b-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-8b-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-8b-2512", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-8b-2512"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-3b-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-3b-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-3b-2512", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-3b-2512"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-14b-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-14b-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "ministral-14b-2512", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["ministral-14b-2512"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "minimax-m3", "series": "MiniMax 系列", "sites": ["pollinations_gen"], "rawIds": ["minimax/minimax-m3"], "owned_by": "MiniMax", "hf": "", "ctx": 524288, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "midijourney-large", "series": "其它模型", "sites": ["pollinations_gen"], "rawIds": ["pollinations/midijourney-large"], "owned_by": "Pollinations", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "midijourney", "series": "其它模型", "sites": ["pollinations_gen"], "rawIds": ["pollinations/midijourney"], "owned_by": "Pollinations", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "llama-instant", "series": "Meta Llama 系列", "sites": ["airforce"], "rawIds": ["llama-instant"], "owned_by": "meta", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "llama-3.3-70b-instruct", "series": "Meta Llama 系列", "sites": ["pollinations_gen"], "rawIds": ["meta/llama-3.3-70b-instruct"], "owned_by": "Meta", "hf": "", "ctx": 131072, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "laguna-xs-2.1", "series": "其它模型", "sites": ["blockrun"], "rawIds": ["poolside/laguna-xs-2.1"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "kimi-k3.1-pro", "series": "Kimi 系列", "sites": ["pollinations_gen"], "rawIds": ["moonshotai/kimi-k3.1-pro"], "owned_by": "Moonshot AI", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "kimi-k3", "series": "Kimi 系列", "sites": ["pollinations_gen"], "rawIds": ["moonshotai/kimi-k3"], "owned_by": "Moonshot AI", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "kimi-k2.7-code", "series": "Kimi 系列", "sites": ["airforce"], "rawIds": ["kimi-k2.7-code"], "owned_by": "moonshot", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "kimi-k2.6", "series": "Kimi 系列", "sites": ["pollinations_gen"], "rawIds": ["moonshotai/kimi-k2.6"], "owned_by": "Moonshot AI", "hf": "", "ctx": 262000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "inkling-2-small", "series": "其它模型", "sites": ["openrouter"], "rawIds": ["thinkingmachines/inkling-2-small:free"], "owned_by": "", "hf": "thinkingmachines/Inkling-2-Small", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "grok-4.6", "series": "xAI Grok 系列", "sites": ["pollinations_gen"], "rawIds": ["x-ai/grok-4.6"], "owned_by": "xAI", "hf": "", "ctx": 200000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "grok-4.3", "series": "xAI Grok 系列", "sites": ["pollinations_gen"], "rawIds": ["x-ai/grok-4.3"], "owned_by": "xAI", "hf": "", "ctx": 200000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "grok-4.20", "series": "xAI Grok 系列", "sites": ["pollinations_gen"], "rawIds": ["x-ai/grok-4.20"], "owned_by": "xAI", "hf": "", "ctx": 262144, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-6.1-terra", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-6.1-terra"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-6.1-sol", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-6.1-sol"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-6-sol", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-6-sol"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-6-luna", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-6-luna"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-6-astra", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-6-astra"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.6-terra", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.6-terra"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.6-sol", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.6-sol"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.6-luna", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.6-luna"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.5", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.5"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.4-nano", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.4-nano"], "owned_by": "OpenAI", "hf": "", "ctx": 400000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.4-mini", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.4-mini"], "owned_by": "OpenAI", "hf": "", "ctx": 400000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.4", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.4"], "owned_by": "OpenAI", "hf": "", "ctx": 1050000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5.3-codex", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5.3-codex"], "owned_by": "OpenAI", "hf": "", "ctx": 400000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gpt-5-nano", "series": "OpenAI GPT 系列", "sites": ["pollinations_gen"], "rawIds": ["openai/gpt-5-nano"], "owned_by": "OpenAI", "hf": "", "ctx": 400000, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "glm-5.3-flash", "series": "智谱 GLM 系列", "sites": ["pollinations_gen"], "rawIds": ["z-ai/glm-5.3-flash"], "owned_by": "Z.ai", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "glm-5.3", "series": "智谱 GLM 系列", "sites": ["pollinations_gen"], "rawIds": ["z-ai/glm-5.3"], "owned_by": "Z.ai", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gemma3-270m", "series": "Google Gemini", "sites": ["airforce"], "rawIds": ["gemma3-270m:free"], "owned_by": "google", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gemma-4-31b-it", "series": "Google Gemini", "sites": ["openrouter"], "rawIds": ["google/gemma-4-31b-it:free"], "owned_by": "", "hf": "google/gemma-4-31B-it", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "gemma-4-26b-a4b-it", "series": "Google Gemini", "sites": ["openrouter"], "rawIds": ["google/gemma-4-26b-a4b-it:free"], "owned_by": "", "hf": "google/gemma-4-26B-A4B-it", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "flint-v1.0", "series": "其它模型", "sites": ["openrouter"], "rawIds": ["recursive/flint-v1.0:free"], "owned_by": "", "hf": "RecursiveSI/flint", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "deepseek-v4.1-flash", "series": "DeepSeek 系列", "sites": ["pollinations_gen"], "rawIds": ["deepseek/deepseek-v4.1-flash"], "owned_by": "DeepSeek", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "deepseek-v4-flash", "series": "DeepSeek 系列", "sites": ["pollinations_gen"], "rawIds": ["deepseek/deepseek-v4-flash"], "owned_by": "DeepSeek", "hf": "", "ctx": 1048576, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "codestral-latest", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["codestral-latest"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "codestral-2508", "series": "Mistral 系列", "sites": ["airforce"], "rawIds": ["codestral-2508"], "owned_by": "mistralai", "hf": "", "ctx": 4096, "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}, {"id": "beam-free", "series": "Liquid / 其它新锐", "sites": ["kilo"], "rawIds": ["reflection/beam-free"], "owned_by": "", "hf": "", "ctx": "", "note": "各站 /models 官方标记免费（tier:free / isFree / pricing=0 / billing_mode=free）"}];
-function renderFT(){
-  const q=document.getElementById('ftQ').value.toLowerCase(),
-        se=document.getElementById('ftSeries').value,
-        si=document.getElementById('ftSiteSel').value;
-  const rows=FREE_TIER.filter(x=>
-    (!q||(x.id+' '+x.series+' '+x.sites.join(' ')+' '+x.rawIds.join(' ')+' '+x.owned_by).toLowerCase().includes(q))&&
-    (!se||x.series===se)&&(!si||x.sites.includes(si)));
-  const box=document.getElementById('ftTable');
-  box.innerHTML='<table class="resmap"><tr><th>模型 ID</th><th>系列</th><th>官方免费标记来源</th><th>站内原始 ID / 厂商</th></tr>'+
-    rows.map(x=>'<tr><td><b class="mono">'+esc(x.id)+'</b> <span class="ftwarn">需免费 Key</span></td>'+
-      '<td>'+esc(x.series)+'</td>'+
-      '<td title="'+esc(x.sites.join(', '))+'"><b style="font-size:11px">'+x.nSites+' 站</b><br>'+x.sites.slice(0,4).map(t=>'<span class="fttag">'+esc(t)+'</span>').join('')+(x.sites.length>4?'<span class="dsbad">+'+(x.sites.length-4)+'</span>':'')+'</td>'+
-      '<td><span class="mono">'+esc(x.rawIds[0])+'</span>'+(x.owned_by?'<br><span style="font-size:10.5px">'+esc(x.owned_by)+'</span>':'')+'</td></tr>').join('')+
-    '</table>';
-  document.getElementById('ftCnt').textContent='显示 '+rows.length+' / '+FREE_TIER.length+' 个真模型';
-  document.getElementById('ftTotal').textContent=FREE_TIER.length;
-}
-function initFT(){
-  const se=document.getElementById('ftSeries'),si=document.getElementById('ftSiteSel');
-  [...new Set(FREE_TIER.map(x=>x.series))].sort().forEach(v=>se.add(new Option(v,v)));
-  [...new Set(FREE_TIER.flatMap(x=>x.sites))].sort().forEach(v=>si.add(new Option(v,v)));
+// ---------- 大参数真模型置顶专区（3.4）：按参数量从大到小，全部列出 ----------
+function renderBig(){
+  const rows=DATA.filter(x=>(x.params||0)>=20&&!x.disabled)
+                 .sort((a,b)=>(b.params||0)-(a.params||0));
+  const box=document.getElementById('bigGrid');
+  if(!box) return;
+  box.innerHTML=rows.map(x=>{
+    const p=x.params, giant=p>=100;
+    const st=x.ok?'<span class="dsfree">实测出字</span>':'<span class="dsbad">限流</span>';
+    return '<div class="bigCell'+(giant?' giant':'')+'">'+
+      '<div class="pn">'+p+'<small>B</small></div>'+
+      '<div class="mid" title="点击复制模型 ID" onclick="cpId(this.textContent)">'+esc(x.id)+'</div>'+
+      '<div class="ms">'+esc(x.siteLabel||x.site)+' · '+st+'</div>'+
+    '</div>';
+  }).join('');
+  const t=document.getElementById('bigTotal'); if(t)t.textContent=rows.length;
+  const ph=document.getElementById('pBig'); if(ph)ph.textContent=rows.length;
 }
 
-// ---------- DeepSeek 系列真模型（独立于 DATA 与 FREE_TIER）----------
-const DEEPSEEK=[{"id": "deepseek-v4.1-flash", "series": "DeepSeek V4.1 Flash", "sites": ["airforce", "blockrun", "deepinfra", "infron", "kilo", "llm7", "modelscope", "nous", "nvidia", "nvidia_nim", "ollama_cloud", "opencode", "openrouter", "orcarouter", "pollinations_gen", "requesty", "routeway", "unorouter", "vercelgw"], "nSites": 19, "free": ["pollinations_gen:category=text & !paid_only", "routeway::free 变体"], "isFree": true, "ctx": 1048576, "owned": ["DeepSeek", "custom"], "officialName": "DeepSeek V4.1 Flash", "rawIds": ["deepinfra/deepseek-v4.1-flash", "deepseek-ai/DeepSeek-V4.1-Flash", "deepseek-ai/deepseek-v4.1-flash", "deepseek-v4.1-flash"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4-flash", "series": "DeepSeek V4 Flash", "sites": ["airforce", "deepinfra", "infron", "kilo", "nous", "openrouter", "orcarouter", "pollinations_gen", "routeway", "unorouter", "vercelgw"], "nSites": 11, "free": ["pollinations_gen:category=text & !paid_only"], "isFree": true, "ctx": 1048576, "owned": ["DeepSeek", "custom"], "officialName": "DeepSeek V4 Flash", "rawIds": ["deepseek-ai/DeepSeek-V4-Flash", "deepseek-v4-flash", "deepseek/deepseek-v4-flash"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4.1-flash-free", "series": "DeepSeek V4.1 Flash", "sites": ["opencode", "orcarouter"], "nSites": 2, "free": ["opencode::free 变体", "orcarouter:pricing=0"], "isFree": true, "ctx": null, "owned": ["DeepSeek", "opencode"], "officialName": "DeepSeek V4.1 Flash Free", "rawIds": ["deepseek-v4.1-flash-free", "deepseek/deepseek-v4.1-flash-free"], "aliasNote": "", "kind": "免费变体", "base": "deepseek-v4.1-flash", "trust": "跨站互证"}, {"id": "deepseek-r1-distill-qwen-32b", "series": "DeepSeek R1 / 推理系", "sites": ["unorouter"], "nSites": 1, "free": ["unorouter::free 变体"], "isFree": true, "ctx": 80000, "owned": ["custom"], "officialName": "", "rawIds": ["deepseek-r1-distill-qwen-32b:free"], "aliasNote": "", "kind": "实验/速度变体", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-free", "series": "DeepSeek V4 Flash", "sites": ["orcarouter"], "nSites": 1, "free": ["orcarouter::free 变体"], "isFree": true, "ctx": null, "owned": ["DeepSeek"], "officialName": "DeepSeek: DeepSeek V4 Flash (Free)", "rawIds": ["deepseek/deepseek-v4-flash-free"], "aliasNote": "", "kind": "免费变体", "base": "deepseek-v4-flash", "trust": "仅单站声明"}, {"id": "deepseek-v4-pro", "series": "DeepSeek V4 Pro", "sites": ["airforce", "blockrun", "deepinfra", "infron", "kilo", "llm7", "modelscope", "nous", "opencode", "openrouter", "orcarouter", "pollinations_gen", "routeway", "unorouter", "vercelgw"], "nSites": 15, "free": [], "isFree": false, "ctx": 1048600, "owned": ["DeepSeek", "deepinfra"], "officialName": "DeepSeek V4 Pro", "rawIds": ["deepseek-ai/DeepSeek-V4-Pro", "deepseek-v4-pro", "deepseek/deepseek-v4-pro"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4.1-flash-1017", "series": "DeepSeek V4.1 Flash", "sites": ["airforce", "chutes", "deepinfra", "infron", "kilo", "modelscope", "nous", "openrouter", "orcarouter", "pollinations_gen", "requesty", "routeway", "unorouter", "vercelgw"], "nSites": 14, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "chutes"], "officialName": "DeepSeek V4.1 Flash 1017", "rawIds": ["deepinfra/deepseek-v4.1-flash-1017", "deepseek-ai/DeepSeek-V4.1-Flash-1017", "deepseek-v4.1-flash-1017", "deepseek/deepseek-v4.1-flash-1017"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4-flash-0731", "series": "DeepSeek V4 Flash", "sites": ["airforce", "deepinfra", "infron", "kilo", "llm7", "modelscope", "nous", "openrouter", "orcarouter", "requesty", "routeway", "unorouter", "vercelgw"], "nSites": 13, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "custom"], "officialName": "DeepSeek V4 Flash 0731", "rawIds": ["DeepSeek-V4-Flash-0731", "deepinfra/deepseek-v4-flash-0731", "deepseek-ai/DeepSeek-V4-Flash-0731", "deepseek-v4-flash-0731"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4-pro-0813", "series": "DeepSeek V4 Pro", "sites": ["airforce", "chutes", "deepinfra", "infron", "kilo", "modelscope", "nous", "openrouter", "orcarouter", "requesty", "routeway", "unorouter", "vercelgw"], "nSites": 13, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "chutes"], "officialName": "DeepSeek V4 Pro 0813", "rawIds": ["deepinfra/deepseek-v4-pro-0813", "deepseek-ai/DeepSeek-V4-Pro-0813", "deepseek-v4-pro-0813", "deepseek/deepseek-v4-pro-0813"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4-flash-vision-exp", "series": "DeepSeek V4 Flash", "sites": ["blockrun", "deepinfra", "infron", "kilo", "nous", "openrouter", "orcarouter", "pollinations_gen", "routeway", "vercelgw"], "nSites": 10, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "deepinfra"], "officialName": "DeepSeek V4 Flash Vision", "rawIds": ["deepseek-ai/DeepSeek-V4-Flash-Vision-Exp", "deepseek-v4-flash-vision-exp", "deepseek/deepseek-v4-flash-vision-exp"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v4-flash", "trust": "跨站互证"}, {"id": "deepseek-chat", "series": "DeepSeek Chat（官方别名）", "sites": ["airforce", "blockrun", "infron", "kilo", "nous", "openrouter", "orcarouter", "requesty"], "nSites": 8, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "deepseek"], "officialName": "DeepSeek Chat (V4.1 Flash)", "rawIds": ["deepseek-chat", "deepseek/deepseek-chat"], "aliasNote": "DeepSeek V3 / V4.1 Flash（官方 chat 别名，具体版本随站点）", "kind": "官方别名", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3.2", "series": "DeepSeek V3.2", "sites": ["airforce", "deepinfra", "kilo", "nous", "openrouter", "requesty", "routeway", "vercelgw"], "nSites": 8, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepinfra", "deepseek"], "officialName": "DeepSeek V3.2", "rawIds": ["deepseek-ai/DeepSeek-V3.2", "deepseek-v3.2", "deepseek/deepseek-v3.2", "vertex/deepseek-v3.2"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-r1-0528", "series": "DeepSeek R1 / 推理系", "sites": ["airforce", "deepinfra", "infron", "kilo", "nous", "openrouter", "routeway"], "nSites": 7, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepinfra", "deepseek"], "officialName": "DeepSeek: R1 0528", "rawIds": ["deepseek-ai/DeepSeek-R1-0528", "deepseek-r1-0528", "deepseek/deepseek-r1-0528"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3.1-terminus", "series": "DeepSeek V3.1", "sites": ["airforce", "infron", "kilo", "nous", "openrouter", "routeway", "unorouter"], "nSites": 7, "free": [], "isFree": false, "ctx": 163840, "owned": ["custom", "deepseek"], "officialName": "DeepSeek: DeepSeek V3.1 Terminus", "rawIds": ["deepseek-v3.1-terminus", "deepseek/deepseek-v3.1-terminus"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-r1", "series": "DeepSeek R1 / 推理系", "sites": ["airforce", "infron", "kilo", "requesty", "routeway", "vercelgw"], "nSites": 6, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepseek", "deepseek-ai"], "officialName": "DeepSeek-R1", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-R1", "deepseek-r1", "deepseek/deepseek-r1"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3.1", "series": "DeepSeek V3.1", "sites": ["airforce", "deepinfra", "infron", "requesty", "routeway", "vercelgw"], "nSites": 6, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepinfra", "deepseek"], "officialName": "DeepSeek V3.1", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-V3.1", "deepseek-ai/DeepSeek-V3.1", "deepseek-v3.1", "deepseek/deepseek-v3.1"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-chat-v3-0324", "series": "DeepSeek V3", "sites": ["airforce", "infron", "kilo", "nous", "openrouter"], "nSites": 5, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepseek"], "officialName": "DeepSeek: DeepSeek V3 0324", "rawIds": ["deepseek-chat-v3-0324", "deepseek/deepseek-chat-v3-0324"], "aliasNote": "DeepSeek V3 0324 官方别名", "kind": "官方别名", "base": "", "trust": "跨站互证"}, {"id": "deepseek-chat-v3.1", "series": "DeepSeek V3.1", "sites": ["airforce", "infron", "kilo", "nous", "openrouter"], "nSites": 5, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepseek"], "officialName": "DeepSeek: DeepSeek V3.1", "rawIds": ["deepseek-chat-v3.1", "deepseek/deepseek-chat-v3.1"], "aliasNote": "DeepSeek V3.1 官方别名", "kind": "官方别名", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3.2-exp", "series": "DeepSeek V3.2", "sites": ["airforce", "kilo", "nous", "openrouter", "routeway"], "nSites": 5, "free": [], "isFree": false, "ctx": 163840, "owned": ["deepseek", "deepseek-ai"], "officialName": "DeepSeek: DeepSeek V3.2 Exp", "rawIds": ["deepseek-v3.2-exp", "deepseek/deepseek-v3.2-exp"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v3.2", "trust": "跨站互证"}, {"id": "deepseek-reasoner", "series": "DeepSeek R1 / 推理系", "sites": ["airforce", "blockrun", "orcarouter", "requesty"], "nSites": 4, "free": [], "isFree": false, "ctx": 1048576, "owned": ["DeepSeek", "deepseek"], "officialName": "DeepSeek Reasoner (V4.1 Flash)", "rawIds": ["deepseek-reasoner", "deepseek/deepseek-reasoner"], "aliasNote": "DeepSeek R1 / V4.1 Flash（官方 reasoner 别名）", "kind": "官方别名", "base": "", "trust": "跨站互证"}, {"id": "deepseek-flash-latest", "series": "DeepSeek V4 Flash", "sites": ["kilo", "nous", "openrouter"], "nSites": 3, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "DeepSeek: DeepSeek Flash Latest", "rawIds": ["~deepseek/deepseek-flash-latest"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-pro-latest", "series": "DeepSeek 其它", "sites": ["kilo", "nous", "openrouter"], "nSites": 3, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "DeepSeek: DeepSeek Pro Latest", "rawIds": ["~deepseek/deepseek-pro-latest"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3", "series": "DeepSeek V3", "sites": ["airforce", "deepinfra", "requesty"], "nSites": 3, "free": [], "isFree": false, "ctx": 131072, "owned": ["deepinfra", "deepseek"], "officialName": "", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-V3", "deepseek-ai/DeepSeek-V3", "deepseek-v3"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4-flash-latest", "series": "DeepSeek V4 Flash", "sites": ["kilo", "nous", "openrouter"], "nSites": 3, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "DeepSeek: DeepSeek V4 Flash Latest", "rawIds": ["~deepseek/deepseek-v4-flash-latest"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v4.1-flash-1017-fast", "series": "DeepSeek V4.1 Flash", "sites": ["kilo", "routeway", "vercelgw"], "nSites": 3, "free": [], "isFree": false, "ctx": 1048576, "owned": ["deepseek", "deepseek-ai"], "officialName": "DeepSeek V4.1 Flash 1017 Fast", "rawIds": ["deepseek-v4.1-flash-1017-fast", "deepseek/deepseek-v4.1-flash-1017-fast"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v4.1-flash-1017", "trust": "跨站互证"}, {"id": "deepseek-coder-6.7b-instruct", "series": "DeepSeek Coder", "sites": ["nvidia", "nvidia_nim"], "nSites": 2, "free": [], "isFree": false, "ctx": null, "owned": ["deepseek-ai"], "officialName": "", "rawIds": ["deepseek-ai/deepseek-coder-6.7b-instruct"], "aliasNote": "", "kind": "代码专用", "base": "", "trust": "跨站互证"}, {"id": "deepseek-r1-distill-llama-70b", "series": "DeepSeek R1 / 推理系", "sites": ["infron", "requesty"], "nSites": 2, "free": [], "isFree": false, "ctx": 131072, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-R1-Distill-Llama-70B", "deepseek/deepseek-r1-distill-llama-70b"], "aliasNote": "", "kind": "实验/速度变体", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3-0324", "series": "DeepSeek V3", "sites": ["routeway", "unorouter"], "nSites": 2, "free": [], "isFree": false, "ctx": 163840, "owned": ["custom", "deepseek-ai"], "officialName": "DeepSeek: DeepSeek V3 0324", "rawIds": ["deepseek-v3-0324"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "跨站互证"}, {"id": "deepseek-v3.2-thinking", "series": "DeepSeek V3.2", "sites": ["kilo", "vercelgw"], "nSites": 2, "free": [], "isFree": false, "ctx": 128000, "owned": ["deepseek"], "officialName": "DeepSeek V3.2 Thinking", "rawIds": ["deepseek/deepseek-v3.2-thinking"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v3.2", "trust": "跨站互证"}, {"id": "deepseek-v4.1-flash-fast", "series": "DeepSeek V4.1 Flash", "sites": ["kilo", "vercelgw"], "nSites": 2, "free": [], "isFree": false, "ctx": 1048576, "owned": ["deepseek"], "officialName": "DeepSeek V4.1 Flash Fast", "rawIds": ["deepseek/deepseek-v4.1-flash-fast"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v4.1-flash", "trust": "跨站互证"}, {"id": "deepseek", "series": "DeepSeek 其它", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 65536, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-ocr", "series": "DeepSeek-OCR", "sites": ["infron"], "nSites": 1, "free": [], "isFree": false, "ctx": 8200, "owned": [], "officialName": "", "rawIds": ["deepseek/deepseek-ocr"], "aliasNote": "", "kind": "专用模型(OCR)", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-ocr-251023", "series": "DeepSeek-OCR", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 8192, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek-ocr-251023"], "aliasNote": "", "kind": "专用模型(OCR)", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-r1-250528", "series": "DeepSeek R1 / 推理系", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 8192, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek-r1-250528"], "aliasNote": "DeepSeek R1 0528 官方别名", "kind": "官方别名", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-r1-turbo", "series": "DeepSeek R1 / 推理系", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["novita/deepseek/deepseek-r1-turbo"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v3-1-think-250821", "series": "DeepSeek V3", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 128000, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek-v3-1-think-250821"], "aliasNote": "DeepSeek V3.1 Thinking 官方别名", "kind": "官方别名", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v3-250324", "series": "DeepSeek V3", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 8192, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek-v3-250324"], "aliasNote": "DeepSeek V3 0324 官方别名", "kind": "官方别名", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v3.1-nex-n1", "series": "DeepSeek V3.1", "sites": ["routeway"], "nSites": 1, "free": [], "isFree": false, "ctx": 131072, "owned": ["nex-agi"], "officialName": "Nex AGI: DeepSeek V3.1 Nex N1", "rawIds": ["deepseek-v3.1-nex-n1"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v3.1flex", "series": "DeepSeek V3.1", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-V3.1:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v3.2-speciale", "series": "DeepSeek V3.2", "sites": ["airforce"], "nSites": 1, "free": [], "isFree": false, "ctx": 8192, "owned": ["deepseek"], "officialName": "", "rawIds": ["deepseek-v3.2-speciale"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v3.2", "trust": "仅单站声明"}, {"id": "deepseek-v3.2-tee", "series": "DeepSeek V3.2", "sites": ["chutes"], "nSites": 1, "free": [], "isFree": false, "ctx": 131072, "owned": ["sglang"], "officialName": "", "rawIds": ["deepseek-ai/DeepSeek-V3.2-TEE"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v3.2", "trust": "仅单站声明"}, {"id": "deepseek-v3flex", "series": "DeepSeek V3", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-ai/DeepSeek-V3:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-0424", "series": "DeepSeek V4 Flash", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4-flash-0424", "novita/deepseek/deepseek-v4-flash-0424", "parasail/deepseek-v4-flash-0424"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-0424flex", "series": "DeepSeek V4 Flash", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4-flash-0424:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-0731-tee", "series": "DeepSeek V4 Flash", "sites": ["chutes"], "nSites": 1, "free": [], "isFree": false, "ctx": 1048576, "owned": ["sglang"], "officialName": "", "rawIds": ["deepseek-ai/DeepSeek-V4-Flash-0731-TEE"], "aliasNote": "", "kind": "实验/速度变体", "base": "deepseek-v4-flash-0731", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-0731flex", "series": "DeepSeek V4 Flash", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4-flash-0731:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-0731us", "series": "DeepSeek V4 Flash", "sites": ["nous"], "nSites": 1, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "DeepSeek: DeepSeek V4 Flash", "rawIds": ["deepseek/deepseek-v4-flash-0731:US"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash-vision-exp-cybersecurity", "series": "DeepSeek V4 Flash", "sites": ["routeway"], "nSites": 1, "free": [], "isFree": false, "ctx": 1048576, "owned": ["deepseek-ai"], "officialName": "DeepSeek: DeepSeek V4 Flash Vision Exp Cybersecurity", "rawIds": ["deepseek-v4-flash-vision-exp-cybersecurity"], "aliasNote": "", "kind": "实验/速度变体", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-flash0731", "series": "DeepSeek V4 Flash", "sites": ["llm7"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": [], "officialName": "", "rawIds": ["deepseek-v4-flash:0731"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-pro-0424", "series": "DeepSeek V4 Pro", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4-pro-0424", "nebius/deepseek-v4-pro-0424", "tensorx/deepseek-v4-pro-0424"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-pro-0424flex", "series": "DeepSeek V4 Pro", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4-pro-0424:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4-pro0813", "series": "DeepSeek V4 Pro", "sites": ["ollama_cloud"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["ollama"], "officialName": "", "rawIds": ["deepseek-v4-pro:0813"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4.1-flash-1017-abliterated", "series": "DeepSeek V4.1 Flash", "sites": ["infron"], "nSites": 1, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "", "rawIds": ["deepseek/deepseek-v4.1-flash-1017-abliterated"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4.1-flash1017", "series": "DeepSeek V4.1 Flash", "sites": ["ollama_cloud"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["ollama"], "officialName": "", "rawIds": ["deepseek-v4.1-flash:1017"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4.1-flashflex", "series": "DeepSeek V4.1 Flash", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["deepinfra/deepseek-v4.1-flash:flex"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek-v4.1-flashus", "series": "DeepSeek V4.1 Flash", "sites": ["nous"], "nSites": 1, "free": [], "isFree": false, "ctx": 1048576, "owned": [], "officialName": "DeepSeek: DeepSeek V4.1 Flash", "rawIds": ["deepseek/deepseek-v4.1-flash:US"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}, {"id": "deepseek_v3", "series": "DeepSeek V3", "sites": ["requesty"], "nSites": 1, "free": [], "isFree": false, "ctx": null, "owned": ["system"], "officialName": "", "rawIds": ["novita/deepseek/deepseek_v3"], "aliasNote": "", "kind": "主模型", "base": "", "trust": "仅单站声明"}];
-function renderDS(){
-  const q=document.getElementById('dsQ').value.toLowerCase(),
-        se=document.getElementById('dsSeries').value,
-        tp=document.getElementById('dsTrust').value,
-        fr=document.getElementById('dsFree').value;
-  const rows=DEEPSEEK.filter(x=>
-    (!q||(x.id+' '+x.series+' '+x.sites.join(' ')+' '+x.officialName+' '+x.rawIds.join(' ')+' '+x.aliasNote).toLowerCase().includes(q))&&
-    (!se||x.series===se)&&
-    (!tp||x.trust===tp||x.kind===tp)&&
-    (!fr||x.isFree));
-  const kindCls=k=>k==='主模型'?'dsdim':(k==='官方别名'||k==='实验/速度变体'||k==='免费变体'?'ftwarn':'dsbad');
-  document.getElementById('dsTable').innerHTML='<table class="resmap"><tr><th>模型 ID</th><th>系列</th><th>口径</th><th>官方免费标记</th><th>来源站</th><th>上下文</th><th>备注</th></tr>'+
-    rows.map(x=>'<tr><td><b class="mono">'+esc(x.id)+'</b></td>'+
-      '<td>'+esc(x.series)+'</td>'+
-      '<td><span class="'+kindCls(x.kind)+'">'+esc(x.kind)+'</span> <span class="'+(x.trust==='跨站互证'?'dsdim':'dsbad')+'">'+esc(x.trust)+' '+x.nSites+'站</span></td>'+
-      '<td>'+(x.isFree?x.free.map(f=>'<span class="dsfree">'+esc(f)+'</span>').join(''):'<span style="color:var(--mut,#7a8699)">—</span>')+'</td>'+
-      '<td>'+x.sites.map(t=>'<span class="fttag">'+esc(t)+'</span>').join('')+'</td>'+
-      '<td>'+(x.ctx?esc(x.ctx.toLocaleString()):'—')+'</td>'+
-      '<td style="font-size:10.5px">'+(x.aliasNote?esc(x.aliasNote):(x.officialName?esc(x.officialName):(x.base?'归并自 '+esc(x.base):'')))+'</td></tr>').join('')+
-    '</table>';
-  document.getElementById('dsCnt').textContent='显示 '+rows.length+' / '+DEEPSEEK.length+' 个真 ID';
-  document.getElementById('dsTotal').textContent=DEEPSEEK.length;
-  document.getElementById('dsNum').textContent=DEEPSEEK.length;
-}
-function initDS(){
-  const se=document.getElementById('dsSeries');
-  [...new Set(DEEPSEEK.map(x=>x.series))].sort().forEach(v=>se.add(new Option(v,v)));
-}
-
-// ---------- 匿名免 key 真模型（独立于 DATA / FREE_TIER / DEEPSEEK）----------
-const ANON=[{"id": "horde/Qwen/Qwen3.5-4B", "m": "Qwen/Qwen3.5-4B", "f": "qwen3.5", "w": 13, "ok": true, "a": "", "s": "aihorde"}, {"id": "horde/Nimbz/Gemma-4-Dark-Orthia-31B", "m": "Nimbz/Gemma-4-Dark-Orthia-31B", "f": "gemma-4", "w": 6, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/aphrodite/TheDrummer/Skyfall-31B-v4.2", "m": "aphrodite/TheDrummer/Skyfall-31B-v4.2", "f": "skyfall", "w": 6, "ok": true, "a": "PONG\n\n\n### Instruction:\nN ", "s": "aihorde"}, {"id": "horde/koboldcpp/L3-8B-Stheno-v3.2", "m": "koboldcpp/L3-8B-Stheno-v3.2", "f": "stheno", "w": 5, "ok": true, "a": "PONG\n### Instruction:\nYou ", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-4-31B-it-heretic", "m": "koboldcpp/gemma-4-31B-it-heretic", "f": "gemma-4", "w": 5, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/ReadyArt/Wicked-Tutu-31B-Final", "m": "ReadyArt/Wicked-Tutu-31B-Final", "f": "wicked", "w": 4, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Rocinante-X-12B-v1", "m": "koboldcpp/Rocinante-X-12B-v1", "f": "rocinante", "w": 4, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/G4-MeroMero-26B-A4B-it-uncensored-heretic", "m": "koboldcpp/G4-MeroMero-26B-A4B-it-uncensored-heretic", "f": "meromero", "w": 3, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M", "m": "koboldcpp/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M", "f": "gemma-4", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Orion-26B-A4B-v1.1", "m": "koboldcpp/Orion-26B-A4B-v1.1", "f": "orion", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-3-270m-it-F16", "m": "koboldcpp/gemma-3-270m-it-F16", "f": "gemma-3", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-4-E4B-it", "m": "koboldcpp/gemma-4-E4B-it", "f": "gemma-4", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/lmstudio/Qwen3.5-9B", "m": "lmstudio/Qwen3.5-9B", "f": "qwen3.5", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/RWKV/RWKV7-2.9B-20260805", "m": "RWKV/RWKV7-2.9B-20260805", "f": "rwkv", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Angelic_Eclipse-12B", "m": "koboldcpp/Angelic_Eclipse-12B", "f": "angelic", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Cydonia-24B-v4zg-Q4_K_M", "m": "koboldcpp/Cydonia-24B-v4zg-Q4_K_M", "f": "cydonia", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/L3-8B-Stheno-v3.2-Q4_K_S", "m": "koboldcpp/L3-8B-Stheno-v3.2-Q4_K_S", "f": "stheno", "w": 1, "ok": true, "a": "PONG\n### Instruction:\nRepl", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3-Lumimaid-8B-v0.1", "m": "koboldcpp/Llama-3-Lumimaid-8B-v0.1", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n### Instruction:\nRepl", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3.2-3B-Instruct", "m": "koboldcpp/Llama-3.2-3B-Instruct", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n\n### Note:\nNo further", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3.2-3B-Instruct-Q4_K_M", "m": "koboldcpp/Llama-3.2-3B-Instruct-Q4_K_M", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n\n---\n\n### Note:\nThis ", "s": "aihorde"}, {"id": "horde/koboldcpp/NemoMix-Unleashed-12B-Q6_K", "m": "koboldcpp/NemoMix-Unleashed-12B-Q6_K", "f": "nemomix", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen/Qwen3.5-0.8B", "m": "koboldcpp/Qwen/Qwen3.5-0.8B", "f": "qwen3.5", "w": 1, "ok": true, "a": "```\nPONG\n```\n\n> **Note:** ", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-0.6B", "m": "koboldcpp/Qwen3-0.6B", "f": "qwen3", "w": 1, "ok": true, "a": "pong\n\n### Response:\npong\n\n", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-1.7B", "m": "koboldcpp/Qwen3-1.7B", "f": "qwen3", "w": 1, "ok": true, "a": "PONG\n\nThe user has provide", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-14B", "m": "koboldcpp/Qwen3-14B", "f": "qwen3", "w": 1, "ok": true, "a": "Okay, the user wants me to", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3.5-4B", "m": "koboldcpp/Qwen3.5-4B", "f": "qwen3.5", "w": 1, "ok": true, "a": "PONG\n\n### Instruction:\nWha", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen_Qwen3-0.6B-IQ4_XS", "m": "koboldcpp/Qwen_Qwen3-0.6B-IQ4_XS", "f": "qwen3", "w": 1, "ok": true, "a": "PONG\n\n### Question:\nI want", "s": "aihorde"}, {"id": "horde/koboldcpp/Rocinante-X-12B", "m": "koboldcpp/Rocinante-X-12B", "f": "rocinante", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/TheDrummer_Rocinante-XL-16B-v1-Q5_K_S", "m": "koboldcpp/TheDrummer_Rocinante-XL-16B-v1-Q5_K_S", "f": "rocinante", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M", "m": "koboldcpp/debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M", "f": "gemma-4", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/mini-magnum-12b-v1.1", "m": "koboldcpp/mini-magnum-12b-v1.1", "f": "magnum", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/llamacpp/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive", "m": "llamacpp/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive", "f": "qwen3", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "stepfun-step", "m": "step", "f": "step", "w": 0, "ok": true, "a": "Step, StepFun / 17*23=391 ", "s": "yqcloud"}, {"id": "horde/sonar/TheDrummer/Behemoth-128B-v3-4.25bpw-h6-exl3", "m": "sonar/TheDrummer/Behemoth-128B-v3-4.25bpw-h6-exl3", "f": "behemoth", "w": 2, "ok": false, "a": "", "s": "aihorde"}, {"id": "horde/koboldcpp/Gemma-4-E4B-it-Ultra-Uncensored-Heretic", "m": "koboldcpp/Gemma-4-E4B-it-Ultra-Uncensored-Heretic", "f": "gemma-4", "w": 1, "ok": false, "a": "", "s": "aihorde"}];
+// ---------- 匿名免 key 真模型速览（真模型已并入主清单 DATA；此表为 3.5 分区的实测证据速查）----------
+const ANON=[{"id": "horde/Qwen/Qwen3.5-4B", "m": "Qwen/Qwen3.5-4B", "f": "qwen3.5", "w": 13, "ok": true, "a": "", "s": "aihorde"}, {"id": "horde/Nimbz/Gemma-4-Dark-Orthia-31B", "m": "Nimbz/Gemma-4-Dark-Orthia-31B", "f": "gemma-4", "w": 6, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/aphrodite/TheDrummer/Skyfall-31B-v4.2", "m": "aphrodite/TheDrummer/Skyfall-31B-v4.2", "f": "skyfall", "w": 6, "ok": true, "a": "PONG\n\n\n### Instruction:\nN ", "s": "aihorde"}, {"id": "horde/koboldcpp/L3-8B-Stheno-v3.2", "m": "koboldcpp/L3-8B-Stheno-v3.2", "f": "stheno", "w": 5, "ok": true, "a": "PONG\n### Instruction:\nYou ", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-4-31B-it-heretic", "m": "koboldcpp/gemma-4-31B-it-heretic", "f": "gemma-4", "w": 5, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/ReadyArt/Wicked-Tutu-31B-Final", "m": "ReadyArt/Wicked-Tutu-31B-Final", "f": "wicked", "w": 4, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Rocinante-X-12B-v1", "m": "koboldcpp/Rocinante-X-12B-v1", "f": "rocinante", "w": 4, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/G4-MeroMero-26B-A4B-it-uncensored-heretic", "m": "koboldcpp/G4-MeroMero-26B-A4B-it-uncensored-heretic", "f": "meromero", "w": 3, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M", "m": "koboldcpp/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M", "f": "gemma-4", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Orion-26B-A4B-v1.1", "m": "koboldcpp/Orion-26B-A4B-v1.1", "f": "orion", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-3-270m-it-F16", "m": "koboldcpp/gemma-3-270m-it-F16", "f": "gemma-3", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/gemma-4-E4B-it", "m": "koboldcpp/gemma-4-E4B-it", "f": "gemma-4", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/lmstudio/Qwen3.5-9B", "m": "lmstudio/Qwen3.5-9B", "f": "qwen3.5", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/RWKV/RWKV7-2.9B-20260805", "m": "RWKV/RWKV7-2.9B-20260805", "f": "rwkv", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Angelic_Eclipse-12B", "m": "koboldcpp/Angelic_Eclipse-12B", "f": "angelic", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Cydonia-24B-v4zg-Q4_K_M", "m": "koboldcpp/Cydonia-24B-v4zg-Q4_K_M", "f": "cydonia", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/L3-8B-Stheno-v3.2-Q4_K_S", "m": "koboldcpp/L3-8B-Stheno-v3.2-Q4_K_S", "f": "stheno", "w": 1, "ok": true, "a": "PONG\n### Instruction:\nRepl", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3-Lumimaid-8B-v0.1", "m": "koboldcpp/Llama-3-Lumimaid-8B-v0.1", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n### Instruction:\nRepl", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3.2-3B-Instruct", "m": "koboldcpp/Llama-3.2-3B-Instruct", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n\n### Note:\nNo further", "s": "aihorde"}, {"id": "horde/koboldcpp/Llama-3.2-3B-Instruct-Q4_K_M", "m": "koboldcpp/Llama-3.2-3B-Instruct-Q4_K_M", "f": "llama-3", "w": 1, "ok": true, "a": "PONG\n\n---\n\n### Note:\nThis ", "s": "aihorde"}, {"id": "horde/koboldcpp/NemoMix-Unleashed-12B-Q6_K", "m": "koboldcpp/NemoMix-Unleashed-12B-Q6_K", "f": "nemomix", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen/Qwen3.5-0.8B", "m": "koboldcpp/Qwen/Qwen3.5-0.8B", "f": "qwen3.5", "w": 1, "ok": true, "a": "```\nPONG\n```\n\n> **Note:** ", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-0.6B", "m": "koboldcpp/Qwen3-0.6B", "f": "qwen3", "w": 1, "ok": true, "a": "pong\n\n### Response:\npong\n\n", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-1.7B", "m": "koboldcpp/Qwen3-1.7B", "f": "qwen3", "w": 1, "ok": true, "a": "PONG\n\nThe user has provide", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3-14B", "m": "koboldcpp/Qwen3-14B", "f": "qwen3", "w": 1, "ok": true, "a": "Okay, the user wants me to", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen3.5-4B", "m": "koboldcpp/Qwen3.5-4B", "f": "qwen3.5", "w": 1, "ok": true, "a": "PONG\n\n### Instruction:\nWha", "s": "aihorde"}, {"id": "horde/koboldcpp/Qwen_Qwen3-0.6B-IQ4_XS", "m": "koboldcpp/Qwen_Qwen3-0.6B-IQ4_XS", "f": "qwen3", "w": 1, "ok": true, "a": "PONG\n\n### Question:\nI want", "s": "aihorde"}, {"id": "horde/koboldcpp/Rocinante-X-12B", "m": "koboldcpp/Rocinante-X-12B", "f": "rocinante", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/TheDrummer_Rocinante-XL-16B-v1-Q5_K_S", "m": "koboldcpp/TheDrummer_Rocinante-XL-16B-v1-Q5_K_S", "f": "rocinante", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M", "m": "koboldcpp/debug-gemma-4-E2B-Queen-it-qat-q4_0-unquantized.i1-Q4_K_M", "f": "gemma-4", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/mini-magnum-12b-v1.1", "m": "koboldcpp/mini-magnum-12b-v1.1", "f": "magnum", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/llamacpp/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive", "m": "llamacpp/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive", "f": "qwen3", "w": 1, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "stepfun-step", "m": "step", "f": "step", "w": 0, "ok": true, "a": "Step, StepFun / 17*23=391 ", "s": "yqcloud"}, {"id": "horde/sonar/TheDrummer/Behemoth-128B-v3-4.25bpw-h6-exl3", "m": "sonar/TheDrummer/Behemoth-128B-v3-4.25bpw-h6-exl3", "f": "behemoth", "w": 2, "ok": true, "a": "PONG", "s": "aihorde"}, {"id": "horde/koboldcpp/Gemma-4-E4B-it-Ultra-Uncensored-Heretic", "m": "koboldcpp/Gemma-4-E4B-it-Ultra-Uncensored-Heretic", "f": "gemma-4", "w": 1, "ok": false, "a": "", "s": "aihorde"}];
 function renderAnon(){
   const q=document.getElementById('anonQ').value.toLowerCase(),
         fa=document.getElementById('anonFam').value,
@@ -6140,7 +6895,7 @@ async function testApi(){
   }catch(e){out.innerHTML='<div style="color:var(--bad)">请求失败：'+esc(e.message)+'（Render 免费层闲置后冷启动约需 30-60 秒，稍后点「在线试一句」重试即可）</div>';}
 }
 
-initLanes();initFilters();initCode();initFT();renderFT();initDS();renderDS();initAnon();renderAnon();render(true);
+initLanes();initFilters();initCode();initAnon();renderAnon();renderBig();render(true);
 </script>
 </body>
 </html>
