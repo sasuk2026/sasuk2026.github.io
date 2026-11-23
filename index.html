@@ -256,6 +256,23 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:30px;line-
   </div>
   <div id="testOut" class="testout" style="display:none"></div>
 
+  <!-- 个性化提示词（人格 / 语言插件）：输入一次，所有模型、所有 APP 调用都注入 -->
+  <div id="personaBox" style="margin:14px 0 4px;padding:14px 16px;border:1px solid rgba(120,170,255,.28);border-radius:10px;background:rgba(90,140,255,.05)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+      <div style="font-weight:700;font-size:15px">🎭 个性化提示词 <span style="font-weight:400;font-size:12px;opacity:.7">（人格 / 语言插件）</span></div>
+      <span id="personaStatus" style="font-size:12px;opacity:.7">读取中…</span>
+    </div>
+    <div style="font-size:12.5px;opacity:.78;line-height:1.7;margin-bottom:9px">
+      在这里写一段人设、语气、语言风格或规则（例如「你是一只猫，句尾带喵」「始终用简体中文、回答简洁」）。<b>保存后，本网关下所有模型、所有 APP（含灵犀）的每次调用都会自动注入这段提示词</b>，让所有模型都按你的设定回答。留空并保存即可关闭。
+    </div>
+    <textarea id="personaText" spellcheck="false" placeholder="例如：你是一位资深的中文技术顾问，回答简洁、有条理，喜欢用列表和代码示例…" style="width:100%;min-height:92px;box-sizing:border-box;resize:vertical;padding:10px 12px;border:1px solid rgba(140,160,200,.35);border-radius:8px;background:rgba(0,0,0,.18);color:var(--txt);font:13px/1.6 inherit;outline:none"></textarea>
+    <div style="display:flex;gap:8px;margin-top:9px;flex-wrap:wrap;align-items:center">
+      <button class="ghost mini" onclick="personaSave()">💾 保存并注入全部模型</button>
+      <button class="ghost mini" onclick="personaClear()">🗑 清空</button>
+      <span style="font-size:12px;opacity:.6">注入位置：messages 首条 system（不覆盖 APP 原有 system）</span>
+    </div>
+  </div>
+
   <div class="tabs" id="codeTabs"></div>
   <pre id="codeBox"><span class="c">选择上方语言查看调用示例…</span></pre>
 </div>
@@ -6516,6 +6533,43 @@ const DEFAULT_BASE = BACKEND_ORIGIN + '/v1';
 })();
 function baseVal(){ return document.getElementById('baseUrl').value.replace(/\/+$/,''); }
 function keyVal(){ return document.getElementById('apiKey').value; }
+
+// ---------- 个性化提示词（人格 / 语言插件）----------
+// 接口在后端根路径 /persona（不在 /v1 下），由 baseUrl 去掉 /v1 得到 origin。
+function personaOrigin(){ return baseVal().replace(/\/v1$/,''); }
+function personaLoad(){
+  fetch(personaOrigin()+'/persona',{cache:'no-store'}).then(r=>r.json()).then(j=>{
+    document.getElementById('personaText').value = j.text || '';
+    personaRefreshStatus();
+  }).catch(()=>{
+    document.getElementById('personaStatus').textContent = '⚠ 读取失败（后端未连通）';
+  });
+}
+function personaRefreshStatus(){
+  const t = document.getElementById('personaText').value.trim();
+  const el = document.getElementById('personaStatus');
+  el.textContent = t ? ('✅ 已启用 · '+t.length+' 字 · 注入全部模型') : '○ 未设置';
+}
+function personaSave(){
+  const text = document.getElementById('personaText').value;
+  const btn = document.getElementById('personaStatus');
+  btn.textContent = '保存中…';
+  fetch(personaOrigin()+'/persona',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:text})}).then(r=>r.json()).then(j=>{
+    if(j.ok){ document.getElementById('personaText').value = j.text||''; personaRefreshStatus();
+      toast('✅ 已保存，所有模型调用都会注入这段提示词'); }
+    else { btn.textContent='⚠ 保存失败：'+(j.error||'未知'); }
+  }).catch(e=>{ btn.textContent='⚠ 保存失败（后端未连通）'; });
+}
+function personaClear(){
+  document.getElementById('personaText').value='';
+  fetch(personaOrigin()+'/persona',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:''})}).then(r=>r.json()).then(()=>{
+    personaRefreshStatus(); toast('已清空，个性化提示词已关闭');
+  }).catch(()=>{ personaRefreshStatus(); });
+}
+document.getElementById('personaText').addEventListener('input',personaRefreshStatus);
+personaLoad();
 
 // ---------- 复制 ----------
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);}
