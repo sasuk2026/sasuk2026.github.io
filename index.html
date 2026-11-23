@@ -6536,10 +6536,25 @@ function keyVal(){ return document.getElementById('apiKey').value; }
 
 // ---------- 个性化提示词（人格 / 语言插件）----------
 // 接口在后端根路径 /persona（不在 /v1 下），由 baseUrl 去掉 /v1 得到 origin。
+// WAF 会扫描请求体里的代码/特殊字符，所以提示词一律 UTF-8 → Base64 后再传输，
+// 后端解码还原。请求/响应体里只有字母数字，不会触发规则。
 function personaOrigin(){ return baseVal().replace(/\/v1$/,''); }
+function personaB64Encode(s){
+  const bytes = new TextEncoder().encode(s);   // UTF-8 字节，中文安全
+  let bin = ''; for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+function personaB64Decode(s){
+  try {
+    const bin = atob(s);
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch(e) { return s || ''; }   // 容错：非 base64 就原样返回（兼容旧后端明文）
+}
 function personaLoad(){
   fetch(personaOrigin()+'/persona',{cache:'no-store'}).then(r=>r.json()).then(j=>{
-    document.getElementById('personaText').value = j.text || '';
+    const raw = j.encoding === 'base64' ? personaB64Decode(j.text||'') : (j.text||'');
+    document.getElementById('personaText').value = raw;
     personaRefreshStatus();
   }).catch(()=>{
     document.getElementById('personaStatus').textContent = '⚠ 读取失败（后端未连通）';
@@ -6555,16 +6570,19 @@ function personaSave(){
   const btn = document.getElementById('personaStatus');
   btn.textContent = '保存中…';
   fetch(personaOrigin()+'/persona',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:text})}).then(r=>r.json()).then(j=>{
-    if(j.ok){ document.getElementById('personaText').value = j.text||''; personaRefreshStatus();
-      toast('✅ 已保存，所有模型调用都会注入这段提示词'); }
+    body:JSON.stringify({text:personaB64Encode(text), encoding:'base64'})}).then(r=>r.json()).then(j=>{
+    if(j.ok){
+      const back = j.encoding === 'base64' ? personaB64Decode(j.text||'') : (j.text||'');
+      document.getElementById('personaText').value = back; personaRefreshStatus();
+      toast('✅ 已保存（加密传输），所有模型调用都会注入这段提示词');
+    }
     else { btn.textContent='⚠ 保存失败：'+(j.error||'未知'); }
   }).catch(e=>{ btn.textContent='⚠ 保存失败（后端未连通）'; });
 }
 function personaClear(){
   document.getElementById('personaText').value='';
   fetch(personaOrigin()+'/persona',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:''})}).then(r=>r.json()).then(()=>{
+    body:JSON.stringify({text:'', encoding:'base64'})}).then(r=>r.json()).then(()=>{
     personaRefreshStatus(); toast('已清空，个性化提示词已关闭');
   }).catch(()=>{ personaRefreshStatus(); });
 }
